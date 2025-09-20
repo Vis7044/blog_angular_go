@@ -1,0 +1,30 @@
+<nav class="bg-gray-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+          <img src="assets/logo.png" alt="Logo" class="h-8 w-8" />
+          <span class="font-bold text-xl">TechBlog</span>
+        </div>
+  
+        <!-- Nav Links (Desktop) -->
+        <div class="hidden md:flex space-x-8">
+          <a [routerLink]="['/']" class="hover:text-blue-400">Home</a>
+          <a [routerLink]="['/about']" class="hover:text-blue-400">About</a>
+          <a [routerLink]="['/contact']" class="hover:text-blue-400">Contact</a>
+        </div>
+  
+        <!-- Social Icons -->
+        <div class="flex space-x-4">
+          <a href="https://instagram.com" target="_blank" aria-label="Instagram">
+            <img src="assets/instagram.svg" alt="Instagram" class="h-6 w-6 hover:opacity-75" />
+          </a>
+          <a href="https://github.com" target="_blank" aria-label="GitHub">
+            <lucide-icon name="github"></lucide-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
