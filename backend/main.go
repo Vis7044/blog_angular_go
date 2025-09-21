@@ -1,8 +1,11 @@
 package main
 
 import (
-	"net/http"
 	"github.com/blog_go/config"
+	"github.com/blog_go/controllers"
+	"github.com/blog_go/repositories"
+	"github.com/blog_go/routes"
+	"github.com/blog_go/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,9 +14,10 @@ func main() {
 	config.ConnectDb()
 	r := gin.Default()
 
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"message":"hello"})
-	})
+	authRepo := repositories.NewAuthRepository(config.DB)
+	authService := services.NewAuthService(authRepo)
+	authController := controllers.NewAuthController(authService)
+	routes.AuthRoute(r, authController)
 
 	r.Run("127.0.0.1:8080")
 	defer config.DisconnectDatabase()
