@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+
 	"github.com/blog_go/models"
 	"github.com/blog_go/services"
 	"github.com/blog_go/utils"
@@ -30,4 +31,25 @@ func (ac *AuthController) RegisterController(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, utils.Response[string]{Success: false,Data: result})
+}
+
+func (ac *AuthController) Login(ctx *gin.Context) {
+	var input struct {
+		Email string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := ctx.ShouldBindJSON(&input);err != nil {
+		ctx.JSON(http.StatusBadRequest,utils.Response[string]{Success: false,Data: err.Error()})
+	}
+	if input.Email=="" || input.Password== "" {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success:false,Data: "Please provice email or password"})
+		return
+	}
+	token, err := ac.service.Login(ctx,input.Email,input.Password)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success:false,Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: token})
+
 }

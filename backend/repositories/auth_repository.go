@@ -2,8 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"time"
+
 	"github.com/blog_go/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -27,3 +30,11 @@ func (ar *AuthRepository) Register(ctx context.Context, user models.User) (strin
 	return "User Registered succesfully", nil
 }
 
+func (ar *AuthRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+	err := ar.collection.FindOne(ctx,bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, errors.New("User not found")
+	}
+	return &user,nil
+}

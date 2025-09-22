@@ -8,6 +8,7 @@ import (
 func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
 	user := r.Group("/auth") 
 	{
-		user.GET("/register", authController.RegisterController)
+		user.POST("/register", authController.RegisterController)
+		user.POST("/login", authController.Login)
 	}
 }

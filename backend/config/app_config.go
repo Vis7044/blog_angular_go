@@ -8,6 +8,7 @@ import (
 
 type AppConfig struct {
 	MongoURI string
+	Jwt_secret string
 }
 
 var loaded = false
@@ -23,10 +24,14 @@ func LoadConfig() {
 	}
 	Cfg = &AppConfig{
 		MongoURI: os.Getenv("MONGO_URI"),
+		Jwt_secret: os.Getenv("JWT_SECRET"),
 	}
 
 	if Cfg.MongoURI == "" {
 		log.Fatal("MONGO_URI is not set")
+	}
+	if Cfg.Jwt_secret == "" {
+		log.Fatal("JWT_SECRET is not set")
 	}
 	loaded = true
 }
