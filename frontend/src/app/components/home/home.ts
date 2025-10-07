@@ -1,8 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Navbar } from "../navbar/navbar";
+
+import { InputOtpModule } from 'primeng/inputotp';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [InputOtpModule],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

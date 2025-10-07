@@ -1,30 +1,105 @@
-<nav class="bg-gray-900 text-white shadow-md">
+<nav class="text-black  bg-gray-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         
         <!-- Logo -->
         <div class="flex items-center space-x-2">
-          <img src="assets/logo.png" alt="Logo" class="h-8 w-8" />
-          <span class="font-bold text-xl">TechBlog</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen-icon lucide-notebook-pen"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg>
+          <span class="font-bold text-xl">My Blog</span>
         </div>
   
         <!-- Nav Links (Desktop) -->
         <div class="hidden md:flex space-x-8">
-          <a [routerLink]="['/']" class="hover:text-blue-400">Home</a>
-          <a [routerLink]="['/about']" class="hover:text-blue-400">About</a>
-          <a [routerLink]="['/contact']" class="hover:text-blue-400">Contact</a>
+          <a [routerLink]="['/']" class="hover:text-orange-900">Home</a>
+          <a [routerLink]="['/about']" class="hover:text-orange-900">About</a>
+          <a [routerLink]="['/contact']" class="hover:text-orange-900">Contact</a>
         </div>
   
         <!-- Social Icons -->
         <div class="flex space-x-4">
-          <a href="https://instagram.com" target="_blank" aria-label="Instagram">
-            <img src="assets/instagram.svg" alt="Instagram" class="h-6 w-6 hover:opacity-75" />
-          </a>
-          <a href="https://github.com" target="_blank" aria-label="GitHub">
-            <lucide-icon name="github"></lucide-icon>
-          </a>
+          <a (click)="showDialog()" class="hover:text-blue-600 cursor-pointer">Sign In/Up</a>
+          <p-dialog 
+          header="Let's Start Exploring" 
+          [modal]="true" 
+          [(visible)]="visible" 
+          [style]="{ width: '28rem', backdropFilter: 'blur(80%)', backgroundColor: 'white', color: 'black', border:'10px', padding: '10px' }"
+          [closable]="true" 
+          [dismissableMask]="true" 
+          [baseZIndex]="10000"
+          [styleClass]="'premium-dialog'">
+        
+        <div class="rounded-xl">
+      
+          <!-- Email -->
+          <div class="flex flex-col gap-1 mb-4">
+            <label for="email" class="font-semibold text-gray-700">Email</label>
+            <input 
+              pInputText 
+              id="email" 
+              autocomplete="off" 
+              class="border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+      
+          <!-- Username (only for signup) -->
+          <div *ngIf="signupVisible && !loginVisible" class="flex flex-col gap-1 mb-4">
+            <label for="username" class="font-semibold text-gray-700">Username</label>
+            <input 
+              pInputText 
+              id="username" 
+              autocomplete="off" 
+              class="border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+      
+          <!-- Password -->
+          <div class="flex flex-col gap-1 mb-6">
+            <label for="password" class="font-semibold text-gray-700">Password</label>
+            <input 
+              pInputText 
+              type="password" 
+              id="password" 
+              autocomplete="off" 
+              class="border border-gray-300 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+      
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 mb-4">
+            <p-button 
+              *ngIf="loginVisible && !signupVisible" 
+              label="Login" 
+              class="p-button-rounded p-button-primary" 
+              [style]="{ backgroundColor: 'white', borderColor: '#4CAF50' }"
+              >
+            </p-button>
+      
+            <p-button 
+              *ngIf="signupVisible && !loginVisible" 
+              label="Sign Up" 
+              class="p-button-rounded p-button-success" 
+              [style]="{ backgroundColor: 'white', borderColor: '#4CAF50' }"
+              >
+            </p-button>
+          </div>
+      
+          <!-- Footer Links -->
+          <div class="text-center text-sm text-gray-500">
+            <p *ngIf="loginVisible">
+              Don't have an account? 
+              <a (click)="switchToSignup()" class="text-indigo-500 hover:underline cursor-pointer">Sign Up</a>
+            </p>
+            <p *ngIf="signupVisible">
+              Have an account? 
+              <a (click)="switchToLogin()" class="text-indigo-500 hover:underline cursor-pointer">Login</a>
+            </p>
+          </div>
+      
+        </div>
+      </p-dialog>
+      
+      
         </div>
       </div>
     </div>
   </nav>
-  
