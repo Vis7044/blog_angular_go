@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/blog_go/config"
 	"github.com/blog_go/controllers"
 	"github.com/blog_go/repositories"
@@ -24,22 +22,17 @@ func main() {
 	r := gin.Default()
 
 	// Allow CORS for Angular frontend
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:4200"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	r.Use(cors.Default())
 
 	// Initialize layers
 	authRepo := repositories.NewAuthRepository(config.DB)
 	authService := services.NewAuthService(authRepo)
 	authController := controllers.NewAuthController(authService)
 
+	imageController := controllers.NewImageController()
 	// Register routes
 	routes.AuthRoute(r, authController)
+	routes.ImageRoute(r, imageController)
 
 	// Run server
 	r.Run("127.0.0.1:8080")

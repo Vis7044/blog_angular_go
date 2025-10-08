@@ -1,0 +1,13 @@
+<!-- editor.component.html -->
+<div class="editor-page h-[calc(100vh-70px)] flex flex-col bg-gray-50">
+  <div class="quill-toolbar mx-auto mt-2.5 z-10 lg:w-[75%] w-[90%]">
+    <quill-editor
+      [(ngModel)]="content"
+      [modules]="modules"
+      (onEditorCreated)="onEditorCreated($event)"
+      theme="snow"
+      placeholder="Write something awesome..."
+      class="flex-1 bg-white min-h-0 w-[100%]"
+    ></quill-editor>
+  </div>
+</div>
