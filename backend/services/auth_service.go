@@ -25,9 +25,9 @@ func NewAuthService(r *repositories.AuthRepository) *AuthService {
 }
 
 func (as *AuthService) Register(ctx context.Context, user models.User) (string, error) {
-	user.Id = primitive.NewObjectID();
+	user.Id = primitive.NewObjectID()
 	if user.Username == "" {
-    return "", errors.New("username is required")
+		return "", errors.New("username is required")
 	}
 	if user.Email == "" {
 		return "", errors.New("email is required")
@@ -41,26 +41,40 @@ func (as *AuthService) Register(ctx context.Context, user models.User) (string, 
 	}
 	user.Password = string(hashedPassword)
 
-	return as.repo.Register(ctx,user)
+	return as.repo.Register(ctx, user)
 }
 
-
 func (as *AuthService) Login(ctx context.Context, email, password string) (string, error) {
-	user, err := as.repo.FindByEmail(ctx,email)
+	user, err := as.repo.FindByEmail(ctx, email)
 	if err != nil {
 		return "", errors.New("invalid credentials")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return "", errors.New("invalid credentials")
 	}
-	claims := jwt.MapClaims {
+	claims := jwt.MapClaims{
 		"userId": user.Id.Hex(),
-		"email": user.Email,
-		"exp":time.Now().Add(time.Hour * 2).Unix(),
-		"iat":time.Now().Unix(),
+		"email":  user.Email,
+		"exp":    time.Now().Add(time.Hour * 2).Unix(),
+		"iat":    time.Now().Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256,claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtSecret := config.Cfg.Jwt_secret
 	fmt.Println(jwtSecret)
 	return token.SignedString([]byte(jwtSecret))
+}
+
+func (as *AuthService) UpdateProfile(ctx context.Context, idstr string) error {
+	id, err := primitive.ObjectIDFromHex(idstr)
+	if err != nil {
+		return errors.New("Invalid Id")
+	}
+
+	_, errs := as.repo.FindByUserId(ctx, id)
+
+	if errs != nil {
+		return errors.New("No user found")
+	}
+
+	return nil
 }

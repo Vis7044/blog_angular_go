@@ -6,9 +6,10 @@ import (
 )
 
 func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
-	user := r.Group("/auth") 
+	user := r.Group("/auth")
 	{
 		user.POST("/register", authController.RegisterController)
 		user.POST("/login", authController.Login)
+		user.POST("/updateprofile/:id", authController.UpdateProfileController)
 	}
 }
