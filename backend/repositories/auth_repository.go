@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/blog_go/models"
@@ -73,4 +74,21 @@ func (ar *AuthRepository) FindByUserId(ctx context.Context, id primitive.ObjectI
 	}
 
 	return &user, nil
+}
+
+func (ar *AuthRepository) UpdateUser(ctx context.Context, id primitive.ObjectID, user *models.User) error {
+	update := bson.M{
+		"$set": bson.M{
+			"profilePic": user.ProfilePic,
+		},
+	}
+	_, err := ar.collection.UpdateByID(ctx, id, update)
+	fmt.Println(err)
+
+	if err != nil {
+		return errors.New("uer not updated")
+	}
+
+	return nil
+
 }

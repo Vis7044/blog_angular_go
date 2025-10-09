@@ -10,6 +10,6 @@ func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
 	{
 		user.POST("/register", authController.RegisterController)
 		user.POST("/login", authController.Login)
-		user.POST("/updateprofile/:id", authController.UpdateProfileController)
+		user.PATCH("/updateprofile/:id", authController.UpdateProfileController)
 	}
 }
