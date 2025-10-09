@@ -9,7 +9,7 @@ import { QuillEditor } from '../quill-editor/quill-editor';
 
 @Component({
   selector: 'app-home',
-  imports: [InputOtpModule,QuillEditor],
+  imports: [InputOtpModule],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
