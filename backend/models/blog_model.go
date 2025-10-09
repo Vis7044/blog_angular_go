@@ -11,10 +11,10 @@ Your brain (application logic) knows that “this number belongs to John”.
 Similarly, your Go code knows that “these ObjectIDs belong to blogs.”*/
 
 type Blog struct {
-	Id      primitive.ObjectID `bson:"_id",omitempty json:"_id",omitempty`
-	UserId  primitive.ObjectID `bson:"userId" json:"userID"`
-	Title   string             `bson:"title" json:"title"`
-	Content string             `bson:"content" json:"content"`
-	Like    int                `bson:"like" json:"like"`
-	Comment primitive.ObjectID `bson:"commentId",omitempty json:"commentId",omitempty`
+	Id      primitive.ObjectID      `bson:"_id,omitempty" json:"_id,omitempty"`
+	UserId  primitive.ObjectID      `bson:"userId" json:"userID"`
+	Title   string                  `bson:"title" json:"title"`
+	Content string                  `bson:"content" json:"content"`
+	Likes    []primitive.ObjectID   `bson:"likes" json:"likes"`
+	Comments []primitive.ObjectID   `bson:"comments" json:"comments"`
 }
