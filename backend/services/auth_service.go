@@ -64,17 +64,18 @@ func (as *AuthService) Login(ctx context.Context, email, password string) (strin
 	return token.SignedString([]byte(jwtSecret))
 }
 
-func (as *AuthService) UpdateProfile(ctx context.Context, idstr string) error {
+func (as *AuthService) UpdateProfile(ctx context.Context, idstr string, profilePic string) error {
 	id, err := primitive.ObjectIDFromHex(idstr)
 	if err != nil {
 		return errors.New("Invalid Id")
 	}
 
-	_, errs := as.repo.FindByUserId(ctx, id)
-
+	user, errs := as.repo.FindByUserId(ctx, id)
 	if errs != nil {
 		return errors.New("No user found")
 	}
+	user.ProfilePic = profilePic
+	errs = as.repo.UpdateUser(ctx, id, user)
 
-	return nil
+	return errs
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/blog_go/models"
@@ -60,13 +61,23 @@ Function update the profile pic by taking input UserID/Email
 
 func (as *AuthController) UpdateProfileController(ctx *gin.Context) {
 	userId := ctx.Param("id")
+	type updateProfilePic struct {
+		ProfilePic string `json:"profilePic"`
+	}
 
-	err := as.service.UpdateProfile(ctx, userId)
+	var req updateProfilePic
 
-	if err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
 
+	fmt.Println(req.ProfilePic)
+
+	err := as.service.UpdateProfile(ctx, userId, req.ProfilePic)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Profile Pic Added Successfully"})
 }
