@@ -1,24 +1,126 @@
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-full max-w-sm p-6 bg-white rounded shadow">
-      <h2 class="text-2xl font-bold text-center mb-6">Sign Up</h2>
-      <form>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Name</label>
-          <input type="text" placeholder="Enter your name" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Email</label>
-          <input type="email" placeholder="Enter your email" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2">Password</label>
-          <input type="password" placeholder="Enter your password" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-        <button type="submit" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition">Sign Up</button>
-      </form>
-      <p class="text-center mt-4 text-gray-600">
-        Already have an account? <a [routerLink]="['/login']" class="text-blue-500 hover:underline">Login</a>
-      </p>
-    </div>
+<form
+  #signupForm="ngForm"
+  (ngSubmit)="onSubmit(signupForm)"
+  class="flex flex-col gap-4 bg-white w-[20rem] "
+>
+  <!-- Username -->
+  <div class="flex flex-col gap-1">
+    <label for="username" class="text-gray-700 font-medium">Username</label>
+    <input
+      pInputText
+      type="text"
+      id="username"
+      name="username"
+      placeholder="Enter your username"
+      [(ngModel)]="user.username"
+      #username="ngModel"
+      required
+      class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+      [ngClass]="{'border-red-400': username.invalid && (username.touched || signupForm.submitted)}"
+      [style]="{ background: 'white', color: 'black' }"
+    />
+    @if (username.invalid && (username.touched || signupForm.submitted)) {
+      <p-message severity="error" size="small" variant="simple">
+        Username is required.
+      </p-message>
+    }
   </div>
-  
+
+  <!-- Email -->
+  <div class="flex flex-col gap-1">
+    <label for="email" class="text-gray-700 font-medium">Email</label>
+    <input
+      pInputText
+      type="email"
+      id="email"
+      name="email"
+      placeholder="Enter your email"
+      [(ngModel)]="user.email"
+      #email="ngModel"
+      required
+      email
+      class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+      [ngClass]="{'border-red-400': email.invalid && (email.touched || signupForm.submitted)}"
+      [style]="{ background: 'white', color: 'black' }"
+    />
+    @if (email.invalid && (email.touched || signupForm.submitted)) {
+      <p-message severity="error" size="small" variant="simple">
+        @if (email.hasError('required')) {
+          Email is required.
+        }
+        @if (email.hasError('email')) {
+          Please enter a valid email.
+        }
+      </p-message>
+    }
+  </div>
+
+  <!-- Password -->
+  <div class="flex flex-col gap-1">
+    <label for="password" class="text-gray-700 font-medium">Password</label>
+    <input
+      pInputText
+      type="password"
+      id="password"
+      name="password"
+      placeholder="Enter your password"
+      [(ngModel)]="user.password"
+      #password="ngModel"
+      required
+      minlength="6"
+      class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+      [ngClass]="{'border-red-400': password.invalid && (password.touched || signupForm.submitted)}"
+      [style]="{ background: 'white', color: 'black' }"
+    />
+    @if (password.invalid && (password.touched || signupForm.submitted)) {
+      <p-message severity="error" size="small" variant="simple">
+        @if (password.hasError('required')) {
+          Password is required.
+        }
+        @if (password.hasError('minlength')) {
+          Password must be at least 6 characters.
+        }
+      </p-message>
+    }
+  </div>
+
+  <!-- Confirm Password -->
+  <div class="flex flex-col gap-1">
+    <label for="confirmPassword" class="text-gray-700 font-medium">Confirm Password</label>
+    <input
+      pInputText
+      type="password"
+      id="confirmPassword"
+      name="confirmPassword"
+      placeholder="Confirm your password"
+      [(ngModel)]="user.confirmPassword"
+      #confirmPassword="ngModel"
+      required
+      class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+      [ngClass]="{'border-red-400': (confirmPassword.touched || signupForm.submitted) && user.password !== user.confirmPassword}"
+      [style]="{ background: 'white', color: 'black' }"
+    />
+    @if ((confirmPassword.touched || signupForm.submitted) && user.password !== user.confirmPassword) {
+      <p-message severity="error" size="small" variant="simple">
+        Passwords do not match.
+      </p-message>
+    }
+  </div>
+
+  <!-- Submit Button (Right-aligned, Hover when valid) -->
+  <div class="flex justify-end">
+    <button
+      pButton
+      type="submit"
+      label="Sign Up"
+      severity="primary"
+      [disabled]="signupForm.invalid || user.password !== user.confirmPassword"
+      class="mb-4 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer"
+      [style]="{width: 'auto',color: 'white',border: 'black', background: signupForm.valid && user.password === user.confirmPassword ? '#3b82f6' : '#d1d5db' }"
+      [ngClass]="{
+        'bg-blue-500 hover:bg-blue-600 cursor-pointer': signupForm.valid && user.password === user.confirmPassword,
+        'bg-gray-300 cursor-not-allowed': signupForm.invalid || user.password !== user.confirmPassword
+      }"
+    ></button>
+  </div>
+</form>
