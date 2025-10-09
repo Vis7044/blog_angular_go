@@ -29,10 +29,18 @@ func main() {
 	authService := services.NewAuthService(authRepo)
 	authController := controllers.NewAuthController(authService)
 
+	// Initialize image controller
 	imageController := controllers.NewImageController()
+
+	// Initialize blog controller
+	blogRepo := repositories.NewBlogRepository(config.DB)
+	blogService := services.NewBlogService(blogRepo)
+	blogController := controllers.NewBlogController(blogService)
+	
 	// Register routes
 	routes.AuthRoute(r, authController)
 	routes.ImageRoute(r, imageController)
+	routes.BlogRoute(r, blogController)
 
 	// Run server
 	r.Run("127.0.0.1:8080")
