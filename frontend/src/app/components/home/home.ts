@@ -1,15 +1,12 @@
 
-import { Component, NgModule } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Navbar } from "../navbar/navbar";
-
+import { Component } from '@angular/core';
 import { InputOtpModule } from 'primeng/inputotp';
-import { CommonModule } from '@angular/common';
-import { QuillEditor } from '../quill-editor/quill-editor';
+import { Button } from "primeng/button";
+import { SaveBlogDialog } from "../save-blog-dialog/save-blog-dialog";
 
 @Component({
   selector: 'app-home',
-  imports: [InputOtpModule],
+  imports: [InputOtpModule, Button, SaveBlogDialog],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

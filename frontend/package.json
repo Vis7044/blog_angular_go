@@ -28,6 +28,7 @@
     "@angular/router": "^20.3.3",
     "@primeuix/themes": "^1.2.5",
     "@tailwindcss/postcss": "^4.1.13",
+    "axios": "^1.12.2",
     "lucide-angular": "^0.544.0",
     "ngx-quill": "^28.0.1",
     "postcss": "^8.5.6",

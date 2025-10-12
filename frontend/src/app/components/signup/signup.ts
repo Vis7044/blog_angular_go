@@ -23,10 +23,26 @@ export class Signup {
     confirmPassword: '',
   };
 
-  onSubmit(form: NgForm) {
+  async onSubmit(form: NgForm) {
     if (form.valid && this.user.password === this.user.confirmPassword) {
-      console.log('Sign Up Successful:', this.user);
-      // You can call your signup API here
+      try {
+        const response = await fetch('http://localhost:8080/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.user),
+        });
+
+        if (!response.ok) {
+          throw new Error('Sign Up failed');
+        }
+
+        const data = await response.json();
+        console.log('Sign Up Successful:', data);
+      } catch (error) {
+        console.error('Error during sign up:', error);
+      }
     } else {
       console.log('Form is invalid or passwords do not match');
     }

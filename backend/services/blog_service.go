@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
@@ -18,14 +19,25 @@ func NewBlogService(r *repositories.BlogRepository) *BlogService {
 	}
 }
 
-func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string ) (string, error) {
+func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, tags []string) (string, error) {
+	if title == "" {
+		return "",  errors.New("title is required")
+	}
+	if content == "" {
+		return "", errors.New("content is required")
+	}
+	if tags == nil {
+		tags = []string{}
+	}
 	var blog = &models.Blog{
 		Id : primitive.NewObjectID(),
 		UserId: userId,
 		Title: title,
 		Content: content,
+		Status: status,
 		Likes: []primitive.ObjectID{},
 		Comments: []primitive.ObjectID{},
+		Tags: tags,
 	}
 	return blogservice.blog_repository.CreateBlog(ctx,blog)
 }

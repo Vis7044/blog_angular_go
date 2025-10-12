@@ -1,6 +1,18 @@
-<!-- editor.component.html -->
 <div class="editor-page h-[calc(100vh-70px)] flex flex-col bg-gray-50">
-  <div class="quill-toolbar mx-auto mt-2.5 z-10 lg:w-[75%] w-[90%]">
+
+  <app-save-blog-dialog [header]="header" [content]="content"></app-save-blog-dialog>
+  <div class="w-[80%] mx-auto custom-input">
+  <input
+    type="text"
+    [(ngModel)]="header"
+    placeholder="Write Your Title"
+    class="w-full border-gray-300 focus:border-[#22aadb]
+      focus:ring-0 text-2xl text-[#302c2cc7] placeholder:text-[#302c2c7e] font-semibold my-4 bg-transparent
+     px-3 py-4 outline-none border-[1px] rounded hover:border-[#3091b4]"
+  />
+</div>
+
+  <div class="quill-toolbar mx-auto mt-2.5 z-10 lg:w-[80%] w-[90%]">
     <quill-editor
       [(ngModel)]="content"
       [modules]="modules"
