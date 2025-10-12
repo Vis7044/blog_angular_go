@@ -22,7 +22,15 @@ func main() {
 	r := gin.Default()
 
 	// Allow CORS for Angular frontend
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:4200", "http://127.0.0.1:4200"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge: 12 * 60 * 60,
+	}))
+
 
 	// Initialize layers
 	authRepo := repositories.NewAuthRepository(config.DB)
