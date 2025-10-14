@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -21,7 +20,7 @@ func NewBlogService(r *repositories.BlogRepository) *BlogService {
 
 func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, tags []string) (string, error) {
 	if title == "" {
-		return "",  errors.New("title is required")
+		return "", errors.New("title is required")
 	}
 	if content == "" {
 		return "", errors.New("content is required")
@@ -30,14 +29,18 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 		tags = []string{}
 	}
 	var blog = &models.Blog{
-		Id : primitive.NewObjectID(),
-		UserId: userId,
-		Title: title,
-		Content: content,
-		Status: status,
-		Likes: []primitive.ObjectID{},
+		Id:       primitive.NewObjectID(),
+		UserId:   userId,
+		Title:    title,
+		Content:  content,
+		Status:   status,
+		Likes:    []primitive.ObjectID{},
 		Comments: []primitive.ObjectID{},
-		Tags: tags,
+		Tags:     tags,
 	}
-	return blogservice.blog_repository.CreateBlog(ctx,blog)
+	return blogservice.blog_repository.CreateBlog(ctx, blog)
+}
+
+func (blogservice *BlogService) GetAllBlogs(ctx context.Context) ([]models.Blog, error) {
+	return blogservice.blog_repository.GetAllBlogs(ctx)
 }
