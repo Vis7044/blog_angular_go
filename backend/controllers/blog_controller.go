@@ -58,6 +58,11 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 
 
 func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
-	ctx.JSON(200, utils.Response[string]{Success: true,Data: "Fetching all blogs not implemented yet"})
-	// Implementation for fetching all blogs will go here
+	var blogs []models.Blog
+	blogs, err := blogController.blogService.GetAllBlogs(ctx.Request.Context())
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to fetch blogs: " + err.Error()})
+		return
+	}
+	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
 }
