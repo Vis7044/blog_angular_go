@@ -23,14 +23,13 @@ func main() {
 
 	// Allow CORS for Angular frontend
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:4200", "http://127.0.0.1:4200"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge: 12 * 60 * 60,
+		MaxAge:           12 * 60 * 60,
 	}))
-
 
 	// Initialize layers
 	authRepo := repositories.NewAuthRepository(config.DB)
@@ -44,7 +43,7 @@ func main() {
 	blogRepo := repositories.NewBlogRepository(config.DB)
 	blogService := services.NewBlogService(blogRepo)
 	blogController := controllers.NewBlogController(blogService)
-	
+
 	// Register routes
 	routes.AuthRoute(r, authController)
 	routes.ImageRoute(r, imageController)

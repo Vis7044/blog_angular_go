@@ -3,6 +3,7 @@ import './globals.css'
 import { useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Sidebar } from './components/Sidebar'
+import { AuthProvider } from '@/context/AuthContext'
 
 export default function RootLayout({
   children,
@@ -15,11 +16,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+      <AuthProvider>
         <Navbar toggleSidebar={toggleSidebar} />
         <div className="flex h-screen">
           <Sidebar sidebarOpen={sidebarOpen} />
-          <main className="flex-1 p-4">{children}</main>
+          <main className="flex-1 p-4">
+            {children}
+            </main>
         </div>
+        </AuthProvider>
       </body>
     </html>
   )
