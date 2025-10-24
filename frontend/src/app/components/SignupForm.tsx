@@ -1,6 +1,6 @@
 'use client'
 
-export const SignupForm = () => {
+export const SignupForm = ({ onClose }: { onClose: () => void }) => {
   return (
     <form className="flex flex-col space-y-3 w-full max-w-sm">
       <input
