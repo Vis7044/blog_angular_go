@@ -16,7 +16,7 @@ export const LoginDialog = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl p-6 w-[28rem] relative shadow-lg">
+      <div className="bg-white rounded-2xl p-6 relative shadow-lg">
         {/* Close button */}
         <button
           onClick={() => setVisible(false)}
