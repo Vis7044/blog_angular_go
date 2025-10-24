@@ -11,5 +11,6 @@ func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
 		user.POST("/register", authController.RegisterController)
 		user.POST("/login", authController.Login)
 		user.PATCH("/updateprofile/:id", authController.UpdateProfileController)
+		user.PATCH("/updatebio/:id", authController.UpdateProfileBio)
 	}
 }

@@ -58,7 +58,6 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 /*
 Function update the profile pic by taking input UserID/Email
 */
-
 func (as *AuthController) UpdateProfileController(ctx *gin.Context) {
 	userId := ctx.Param("id")
 	type updateProfilePic struct {
@@ -72,12 +71,34 @@ func (as *AuthController) UpdateProfileController(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(req.ProfilePic)
-
 	err := as.service.UpdateProfile(ctx, userId, req.ProfilePic)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Profile Pic Added Successfully"})
+}
+
+func (as *AuthController) UpdateProfileBio(ctx *gin.Context) {
+	userId := ctx.Param("id")
+	type bioStatus struct {
+		Bio string `json:"bio"`
+	}
+
+	var req bioStatus
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	fmt.Println("working: ", req.Bio)
+
+	err := as.service.Updatebio(ctx, userId, req.Bio)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Bio updated successfully"})
+
 }
