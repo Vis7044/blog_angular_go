@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/blog_go/config"
@@ -44,25 +43,48 @@ func (as *AuthService) Register(ctx context.Context, user models.User) (string, 
 	return as.repo.Register(ctx, user)
 }
 
-func (as *AuthService) Login(ctx context.Context, email, password string) (string, error) {
-	user, err := as.repo.FindByEmail(ctx, email)
-	if err != nil {
-		return "", errors.New("invalid credentials")
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", errors.New("invalid credentials")
-	}
-	claims := jwt.MapClaims{
-		"userId": user.Id.Hex(),
-		"email":  user.Email,
-		"exp":    time.Now().Add(time.Hour * 2).Unix(),
-		"iat":    time.Now().Unix(),
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	jwtSecret := config.Cfg.Jwt_secret
-	fmt.Println(jwtSecret)
-	return token.SignedString([]byte(jwtSecret))
+func (as *AuthService) Login(ctx context.Context, email, password string) (string,string, error) {
+    user, err := as.repo.FindByEmail(ctx, email)
+    if err != nil {
+        return "", "", errors.New("invalid credentials")
+    }
+
+    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+        return "", "", errors.New("invalid credentials")
+    }
+
+    
+    accessClaims := jwt.MapClaims{
+        "userId": user.Id.Hex(),
+        "email":  user.Email,
+        "isAdmin": user.IsAdmin,
+        "exp":    time.Now().Add(2 * time.Hour).Unix(),
+        "iat":    time.Now().Unix(),
+    }
+
+    accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+    accessTokenString, err := accessToken.SignedString([]byte(config.Cfg.Jwt_secret))
+    if err != nil {
+        return "", "", err
+    }
+
+
+    refreshClaims := jwt.MapClaims{
+        "userId": user.Id.Hex(),
+        "email":  user.Email,
+        "isAdmin": user.IsAdmin,
+        "exp":    time.Now().Add(7 * 24 * time.Hour).Unix(),
+        "iat":    time.Now().Unix(),
+    }
+
+    refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+    refreshTokenString, err := refreshToken.SignedString([]byte(config.Cfg.RefreshToken_secret))
+    if err != nil {
+        return "", "", err
+    }
+    return accessTokenString, refreshTokenString, nil
 }
+
 
 func (as *AuthService) UpdateProfile(ctx context.Context, idstr string, profilePic string) error {
 	id, err := primitive.ObjectIDFromHex(idstr)

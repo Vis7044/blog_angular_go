@@ -12,6 +12,7 @@ type AppConfig struct {
 	CloudinaryCloudName string
 	CloudinaryApiKey string
 	CloudinaryApiSecret string
+	RefreshToken_secret string
 }
 
 var loaded = false
@@ -31,14 +32,15 @@ func LoadConfig() {
 		CloudinaryCloudName: os.Getenv("CLOUDINARY_CLOUD_NAME"),
 		CloudinaryApiKey: os.Getenv("CLOUDINARY_API_KEY"),
 		CloudinaryApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
+		RefreshToken_secret: os.Getenv("REFRESH_TOKEN_SECRET"),
 	}
 
 
 	if Cfg.MongoURI == "" {
 		log.Fatal("MONGO_URI is not set")
 	}
-	if Cfg.Jwt_secret == "" {
-		log.Fatal("JWT_SECRET is not set")
+	if Cfg.Jwt_secret == "" || Cfg.RefreshToken_secret == "" {
+		log.Fatal("JWT_SECRET or REFRESH_TOKEN_SECRET is not set")
 	}
 	if Cfg.CloudinaryCloudName == "" || Cfg.CloudinaryApiKey == "" || Cfg.CloudinaryApiSecret == "" {
 		log.Fatal("Cloudinary configuration is not set properly")

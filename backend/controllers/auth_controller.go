@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-
 	"github.com/blog_go/models"
 	"github.com/blog_go/services"
 	"github.com/blog_go/utils"
@@ -46,12 +45,24 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Please provice email or password"})
 		return
 	}
-	token, err := ac.service.Login(ctx, input.Email, input.Password)
+	access_token, refresh_token, err := ac.service.Login(ctx, input.Email, input.Password)
+	// Set refresh token in HttpOnly cookie
+    ctx.SetCookie(
+        "refreshToken",
+        refresh_token,
+        7*24*60*60, // 7 days in seconds
+        "/",
+        "",
+        false,                 // Secure: only over HTTPS
+        true,                 // HttpOnly
+    )
+	ctx.Header("Set-Cookie", ctx.Writer.Header().Get("Set-Cookie")+"; SameSite=Lax")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: token})
+	fmt.Print(access_token)
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: access_token})
 
 }
 
