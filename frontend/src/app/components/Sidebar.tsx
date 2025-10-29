@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { House, BookOpenText, Phone, Bookmark } from 'lucide-react';
+import { House, BookOpenText, Phone, Bookmark, Settings, CircleUserRound } from 'lucide-react';
 
 export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   return (
@@ -33,6 +33,12 @@ export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
           {sidebarOpen && 
           <span className='flex flex-row gap-1'>
             <Bookmark />Bookmarks
+            </span>}
+        </Link>
+        <Link href="/profile" className="px-4 py-2 text-black hover:text-orange-900">
+        {sidebarOpen && 
+          <span className='flex flex-row gap-1'>
+            <CircleUserRound /> Profile
             </span>}
         </Link>
 
