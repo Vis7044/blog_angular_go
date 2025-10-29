@@ -97,7 +97,23 @@ func (as *AuthService) UpdateProfile(ctx context.Context, idstr string, profileP
 		return errors.New("No user found")
 	}
 	user.ProfilePic = profilePic
-	errs = as.repo.UpdateUser(ctx, id, user)
+	errs = as.repo.UpdateUserProfile(ctx, id, user)
 
+	return errs
+}
+
+func (as *AuthService) Updatebio(ctx context.Context, idstr string, bio string) error {
+	id, err := primitive.ObjectIDFromHex(idstr)
+	if err != nil {
+		return errors.New("Invalid Id")
+	}
+	user, errs := as.repo.FindByUserId(ctx, id)
+
+	if errs != nil {
+		return errors.New("No user found")
+	}
+	user.Bio = bio
+	fmt.Println("Bio", user.Bio)
+	errs = as.repo.UpdateUserBio(ctx, id, user)
 	return errs
 }

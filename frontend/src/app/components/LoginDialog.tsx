@@ -16,7 +16,8 @@ export const LoginDialog = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl p-6 w-[28rem] relative shadow-lg">
+      <div className="bg-white rounded-2xl p-6 relative shadow-lg">
+        {/* Close button */}
         <button
           onClick={() => setVisible(false)}
           className="absolute top-2 right-3 text-gray-600 hover:text-black text-xl"
@@ -29,7 +30,12 @@ export const LoginDialog = ({
         </h2>
 
         <div className="flex flex-col transition-all duration-300 justify-center items-center">
-          {isLogin ? <LoginForm /> : <SignupForm />}
+          {/* ✅ Pass setVisible to both forms */}
+          {isLogin ? (
+            <LoginForm onClose={() => setVisible(false)} />
+          ) : (
+            <SignupForm onClose={() => setVisible(false)} />
+          )}
 
           <p className="mt-4 text-sm">
             {isLogin ? (
