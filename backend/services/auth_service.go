@@ -113,7 +113,6 @@ func (as *AuthService) Updatebio(ctx context.Context, idstr string, bio string) 
 		return errors.New("No user found")
 	}
 	user.Bio = bio
-	fmt.Println("Bio", user.Bio)
 	errs = as.repo.UpdateUserBio(ctx, id, user)
 	return errs
 }
