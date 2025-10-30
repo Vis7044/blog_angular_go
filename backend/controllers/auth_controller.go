@@ -113,3 +113,18 @@ func (as *AuthController) UpdateProfileBio(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Bio updated successfully"})
 
 }
+
+func (ac *AuthController) RefreshToken(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("refreshToken")
+	if err != nil {
+		ctx.JSON(401, utils.Response[string]{Success: false, Data: "Refresh token not found"})
+		return
+	}
+	newAccessToken, err := ac.service.RefreshTokens(ctx, refreshToken)
+	if err != nil {
+		ctx.JSON(401, utils.Response[string]{Success: false, Data: "Invalid refresh token"})
+		return
+	}
+	
+	ctx.JSON(200, utils.Response[string]{Success: true, Data: newAccessToken})
+}

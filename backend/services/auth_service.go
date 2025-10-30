@@ -8,6 +8,7 @@ import (
 	"github.com/blog_go/config"
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
+	"github.com/blog_go/utils"
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -58,7 +59,7 @@ func (as *AuthService) Login(ctx context.Context, email, password string) (strin
         "userId": user.Id.Hex(),
         "email":  user.Email,
         "isAdmin": user.IsAdmin,
-        "exp":    time.Now().Add(2 * time.Hour).Unix(),
+        "exp":    time.Now().Add(30 * time.Minute).Unix(),
         "iat":    time.Now().Unix(),
     }
 
@@ -115,4 +116,30 @@ func (as *AuthService) Updatebio(ctx context.Context, idstr string, bio string) 
 	user.Bio = bio
 	errs = as.repo.UpdateUserBio(ctx, id, user)
 	return errs
+}
+
+
+func (as *AuthService) RefreshTokens(ctx context.Context, refreshTokenStr string) (string, error) {
+	if refreshTokenStr == "" {
+		return "", errors.New("refresh token is required")
+	}
+	claims, err := utils.ParseRefreshToken(refreshTokenStr)
+	if err != nil {
+		return "", errors.New("invalid or expired refresh token")
+	}
+	accessClaims := jwt.MapClaims{
+		"userId": claims["userId"],
+		"email":  claims["email"],
+		"isAdmin": claims["isAdmin"],
+		"exp":    time.Now().Add(30 * time.Minute).Unix(),
+		"iat":    time.Now().Unix(),
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	accessTokenString, err := accessToken.SignedString([]byte(config.Cfg.Jwt_secret))
+	if err != nil {
+		return "", err
+	}
+
+	return accessTokenString, nil
 }
