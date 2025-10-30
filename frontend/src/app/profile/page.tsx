@@ -1,15 +1,17 @@
 'use client'
 import React, { useState } from 'react'
-import { UserCircle, Users, FolderOpen, Trash2, User } from 'lucide-react'
+import { UserCircle, Users, FolderOpen, Trash2, User, LogOut } from 'lucide-react'
 
 import MyProfile from '../components/MyProfile'
 import Teams from '../components/Teams'
 import TeamMembers from '../components/TeamMembers'
 import YourWork from '../components/YourWork'
 import DeleteAccount from '../components/DeleteAccount'
+import { useAuth } from '@/context/AuthContext'
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState('myprofile')
+  const {token, logout} = useAuth();
 
   const renderSection = () => {
     switch (activeSection) {
@@ -90,6 +92,7 @@ const Profile = () => {
           >
             <Trash2 size={20} /> Delete Account
           </button>
+
         </nav>
       </aside>
 
