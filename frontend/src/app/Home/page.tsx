@@ -1,5 +1,6 @@
 
-function page() {
+function Page() {
+  
   return (
     <div>
         <h1>Home</h1>
@@ -7,4 +8,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
