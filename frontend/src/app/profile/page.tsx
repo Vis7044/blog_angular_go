@@ -2,11 +2,11 @@
 import React, { useState } from 'react'
 import { UserCircle, Users, FolderOpen, Trash2, User, LogOut } from 'lucide-react'
 
-import MyProfile from '../components/MyProfile'
-import Teams from '../components/Teams'
-import TeamMembers from '../components/TeamMembers'
-import YourWork from '../components/YourWork'
-import DeleteAccount from '../components/DeleteAccount'
+import MyProfile from '../../components/MyProfile'
+import Teams from '../../components/Teams'
+import TeamMembers from '../../components/TeamMembers'
+import YourWork from '../../components/YourWork'
+import DeleteAccount from '../../components/DeleteAccount'
 import { useAuth } from '@/context/AuthContext'
 
 const Profile = () => {

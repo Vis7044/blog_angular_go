@@ -143,3 +143,11 @@ func (as *AuthService) RefreshTokens(ctx context.Context, refreshTokenStr string
 
 	return accessTokenString, nil
 }
+
+func (as *AuthService) GetLoggedInUser(ctx context.Context, email string) (models.User, error) {
+	user, err := as.repo.FindByEmail(ctx, email)
+	if err != nil {
+		return models.User{}, errors.New("user not found")
+	}
+	return *user, nil
+}

@@ -1,8 +1,8 @@
 'use client'
 import './globals.css'
 import { useState } from 'react'
-import { Navbar } from './components/Navbar'
-import { Sidebar } from './components/Sidebar'
+import { Navbar } from '../components/Navbar'
+import { Sidebar } from '../components/Sidebar'
 import { AuthProvider } from '@/context/AuthContext'
 
 export default function RootLayout({

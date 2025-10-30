@@ -86,7 +86,7 @@ apiClient.interceptors.response.use(
           [401, 403].includes(refreshError.response.status)
         ) {
           localStorage.removeItem("authToken");
-          window.location.href = "/login";
+          window.location.href = "/";
         }
         return Promise.reject(refreshError);
       } finally {
