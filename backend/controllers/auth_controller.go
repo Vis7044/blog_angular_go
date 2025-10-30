@@ -128,3 +128,19 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 	
 	ctx.JSON(200, utils.Response[string]{Success: true, Data: newAccessToken})
 }
+
+
+func (ac *AuthController) LoggedInUserController(ctx *gin.Context) {
+	email, exists := ctx.Get("email")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response[string]{Success: false, Data: "User not logged in"})
+		return
+	}
+
+	user, err := ac.service.GetLoggedInUser(ctx, email.(string))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[models.User]{Success: true, Data: user})
+}

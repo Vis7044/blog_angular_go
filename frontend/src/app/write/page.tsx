@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { RichTextEditor } from '../components/RichTextEditor'
+import { RichTextEditor } from '../../components/RichTextEditor'
 
 export default function Write() {
   const [title, setTitle] = useState('')
