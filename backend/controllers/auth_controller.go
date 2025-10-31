@@ -144,3 +144,17 @@ func (ac *AuthController) LoggedInUserController(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, utils.Response[models.User]{Success: true, Data: user})
 }
+
+func (ac *AuthController) Logout(ctx *gin.Context) {
+	// Clear the refresh token cookie
+	ctx.SetCookie(
+        "refreshToken",
+        "",
+        -1, 
+        "/",
+        "",
+        false,                 
+        true,                 
+    )
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Logged out successfully"})
+}

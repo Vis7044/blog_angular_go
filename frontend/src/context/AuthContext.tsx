@@ -2,6 +2,7 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import apiClient from "@/utils/axiosInstance";
 import { AxiosError } from "axios";
+import { authService } from "@/services/authService";
 
 interface User {
   id: string;
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await apiClient.post("/auth/logout"); 
+      await authService.logout();
     } catch (err) {
       console.warn("Logout request failed:", err);
     } finally {
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await apiClient.get("/auth/me");
+      const res = await authService.fetchCurrentUser();
       setUser(res.data.data);
     } catch (err) {
       const axiosError = err as AxiosError;
