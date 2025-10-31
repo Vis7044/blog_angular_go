@@ -7,11 +7,9 @@ import Teams from '../../components/Teams'
 import TeamMembers from '../../components/TeamMembers'
 import YourWork from '../../components/YourWork'
 import DeleteAccount from '../../components/DeleteAccount'
-import { useAuth } from '@/context/AuthContext'
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState('myprofile')
-  const {token, logout} = useAuth();
 
   const renderSection = () => {
     switch (activeSection) {

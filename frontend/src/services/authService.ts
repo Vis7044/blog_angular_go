@@ -1,22 +1,24 @@
 // src/services/authService.js
-import apiClient from '../utils/axiosInstance';
-import axiosInstance from '../utils/axiosInstance'
+import apiClient from "../utils/axiosInstance";
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-const baseRoute = '/auth';
-
-export const signup = async (userData : any) => {
-  try {
-    const response = await axiosInstance.post('/register', userData)
-    return response.data
-  } catch (error) {
-    console.error('Signup failed:', error)
-    throw error
-  }
+interface SignupData {
+  name: string;
+  email: string;
+  password: string;
 }
 
-export const login = async (credentials: LoginCredentials) => apiClient.post(`${baseRoute}/login`, credentials);
+class AuthService {
+  baseRoute = "/auth";
+
+  signup = async (userData: SignupData) => apiClient.post("/register", userData);
+  login = async (credentials: LoginCredentials) => apiClient.post(`${this.baseRoute}/login`, credentials);
+  logout = async () => apiClient.post(`${this.baseRoute}/logout`);
+  fetchCurrentUser = async () => apiClient.get(`${this.baseRoute}/me`);
+}
+
+export const authService = new AuthService();
