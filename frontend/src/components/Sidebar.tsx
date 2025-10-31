@@ -15,7 +15,7 @@ import { useAuth } from '@/context/AuthContext'
 
 export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const pathname = usePathname()
-  const { token, logout } = useAuth()
+  const { user, logout } = useAuth()
 
   const navItems = [
     { href: '/', label: 'Home', icon: House },
@@ -65,7 +65,7 @@ export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         })}
 
         {/* Logout button (only if user is logged in) */}
-        {token && (
+        {user && (
           <button
             onClick={logout}
             className="group relative flex items-center gap-3 px-4 py-2 rounded-md overflow-hidden

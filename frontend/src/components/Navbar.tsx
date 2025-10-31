@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 export const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
   const [visible, setVisible] = useState(false)
   const [burgerVis, setBurgerVis] = useState(false);
-  const {token, logout} = useAuth();
+  const {user} = useAuth();
   
 
   return (
@@ -60,7 +60,7 @@ export const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
             <SquarePen />Write
           </Link>
           {
-            !token ? (
+            !user ? (
               <button
                 onClick={() => setVisible(true)}
                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
