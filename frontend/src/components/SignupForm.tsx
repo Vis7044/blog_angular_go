@@ -1,7 +1,7 @@
 'use client'
 
+import { authService } from '@/services/authService'
 import { useState } from 'react'
-import { signup } from '../services/authService'
 
 export const SignupForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -39,10 +39,10 @@ export const SignupForm = ({ onClose }: { onClose: () => void }) => {
 
     setLoading(true)
     try {
-      const result = await signup(formData)
-      setMessage(`🎉 Signup successful! Welcome ${result.name || formData.name}.`)
+      const result = await authService.signup(formData)
+      setMessage(`Signup successful! Welcome ${result.data.name || formData.name}.`)
     } catch (error) {
-      setMessage('❌ Signup failed. Please try again.')
+      setMessage('Signup failed. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -1,8 +1,9 @@
+'use client';
 // src/context/AuthContext.tsx
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
-import apiClient from "@/utils/axiosInstance";
 import { AxiosError } from "axios";
 import { authService } from "@/services/authService";
+import OverlaySpinner from "@/components/OverlaySpinner";
 
 interface User {
   id: string;
@@ -57,6 +58,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   }, []);
+
+  if (loading) {
+    return <OverlaySpinner/>;
+  }
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, loading, fetchUser }}>

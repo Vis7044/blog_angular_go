@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from "@/context/AuthContext";
-import { login } from "@/services/authService";
+import { authService } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -15,12 +15,12 @@ export const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const resp = await login({email, password});
-      
-      if (!resp.data.data.success) {
+      const resp = await authService.login({email, password});
+      console.log("Login response:", resp);
+      if (!resp.data.success) {
         throw new Error("Login failed");
       }
-      localStorage.setItem("authToken", resp.data.data.token);
+      localStorage.setItem("authToken", resp.data.data);
       await fetchUser();
       onClose();
       router.push("/");

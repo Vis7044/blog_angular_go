@@ -18,7 +18,7 @@ class AuthService {
   signup = async (userData: SignupData) => apiClient.post("/register", userData);
   login = async (credentials: LoginCredentials) => apiClient.post(`${this.baseRoute}/login`, credentials);
   logout = async () => apiClient.post(`${this.baseRoute}/logout`);
-  fetchCurrentUser = async () => apiClient.get(`${this.baseRoute}/me`);
+  fetchCurrentUser = async () => apiClient.get(`${this.baseRoute}/logedinuser`);
 }
 
 export const authService = new AuthService();
