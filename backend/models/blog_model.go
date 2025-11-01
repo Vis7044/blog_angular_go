@@ -27,4 +27,6 @@ type Blog struct {
 	Comments []primitive.ObjectID   `bson:"comments" json:"comments"`
 	Status   Status                 `bson:"status" json:"status"`
 	Tags	 []string                `bson:"tags" json:"tags"`
+	CreatedAt primitive.DateTime     `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UpdatedAt primitive.DateTime     `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
