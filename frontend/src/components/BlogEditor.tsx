@@ -13,8 +13,9 @@ export default function BlogEditor() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [saving, setSaving] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
-  // 🖼️ Handle image upload
+  // Handle image upload
   const imageHandler = async () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -45,7 +46,6 @@ export default function BlogEditor() {
         }, 300);
       } catch (error) {
         console.error("Image upload failed:", error);
-        alert("Image upload failed. Please try again.");
       }
     };
   };
@@ -75,7 +75,16 @@ export default function BlogEditor() {
 
     const html = quill.root.innerHTML;
     setSaving(true);
-
+    if (title.trim() === "") {
+      alert("Title cannot be empty.");
+      setSaving(false);
+      return;
+    }
+    if (html.trim() === "" || html === "<p><br></p>") {
+      alert("Content cannot be empty.");
+      setSaving(false);
+      return;
+    }
     // Collect used publicIds
     const usedPublicIds = new Set<string>();
     const imgs = quill.root.querySelectorAll("img");
@@ -105,7 +114,6 @@ export default function BlogEditor() {
       });
 
       previousImagesRef.current = new Set(usedPublicIds);
-      alert("✅ Blog saved successfully!");
     } catch (err) {
       console.error("Blog save failed:", err);
       alert("Failed to save blog.");
@@ -115,31 +123,65 @@ export default function BlogEditor() {
   };
 
   return (
-    <div className="editor-page p-4">
-      <input
-        type="text"
-        placeholder="Enter title..."
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-md mb-4 text-lg focus:outline-none"
-      />
-      <ReactQuill
-        ref={quillRef}
-        theme="snow"
-        value={content}
-        onChange={setContent}
-        modules={modules}
-        placeholder="Write something awesome..."
-      />
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className={`mt-6 bg-blue-600 text-white px-5 py-2 rounded-md font-medium ${
-          saving ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
-        }`}
-      >
-        {saving ? "Saving..." : "Publish Post"}
-      </button>
+    <div>
+      {!previewMode ? (<div className="flex flex-col mx-auto p-6 w-full">
+      <div className="flex justify-between items-center w-[80%] mx-auto mb-4">
+        <h1 className="text-3xl font-semibold mb-2">
+          What&apos;s in your mind today!
+        </h1>
+
+        <div>
+          <button
+              onClick={() => setPreviewMode(true)}
+              className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
+            >
+              👀 Preview
+            </button>
+        </div>
+      </div>
+      <div className="max-w-6xl flex flex-col mx-auto p-6 w-full">
+        <textarea
+          placeholder="Enter title..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-3 max-h-20 border border-gray-300 font-semibold text-gray-700 rounded-md mb-4 text-2xl focus:outline-none"
+        />
+        <ReactQuill
+          ref={quillRef}
+          theme="snow"
+          value={content}
+          onChange={setContent}
+          modules={modules}
+          placeholder="Write something awesome..."
+        />
+      </div>
+    </div>):
+    (
+      <div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h1 className="text-3xl font-bold mb-4">{title}</h1>
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              onClick={() => setPreviewMode(false)}
+              className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
+            >
+              ✏️ Back to Edit
+            </button>
+            <button
+              onClick={handleSave}
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md"
+            >
+              🚀 Publish
+            </button>
+          </div>
+      </div>
+        )}
     </div>
   );
 }
