@@ -74,12 +74,27 @@ func (imgController *ImageController) UploadImage(c *gin.Context) {
 
 
 func (imgController *ImageController) DeleteImage(c *gin.Context) {
-	publicId := c.Query("publicId")
-	if publicId == "" {
-		c.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "publicId is required"})
-		return
-	}
-	_, err := imgController.cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: publicId})
+	var body struct {
+        PublicId string `json:"publicId"`
+    }
+
+    if err := c.ShouldBindJSON(&body); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "success": false,
+            "message": "Invalid request body",
+            "error":   err.Error(),
+        })
+        return
+    }
+
+    if body.PublicId == "" {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "success": false,
+            "message": "Missing publicId field",
+        })
+        return
+    }
+	_, err := imgController.cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: body.PublicId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
 		return

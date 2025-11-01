@@ -1,3 +1,6 @@
+
+export default function Home() {
+
 'use client'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -53,7 +56,6 @@ export default function HomePage() {
     activeCategory === 'ALL'
       ? articles
       : articles.filter((a) => a.category === activeCategory)
-
   return (
     <div className="min-h-screen bg-white text-gray-900 mb-4">
       {/* HERO SECTION */}
