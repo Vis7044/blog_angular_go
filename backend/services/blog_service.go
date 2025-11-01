@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -37,6 +39,8 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 		Likes:    []primitive.ObjectID{},
 		Comments: []primitive.ObjectID{},
 		Tags:     tags,
+		CreatedAt: primitive.DateTime(time.Now().Unix()),
+		UpdatedAt: primitive.DateTime(time.Now().Unix()),
 	}
 	return blogservice.blog_repository.CreateBlog(ctx, blog)
 }

@@ -4,15 +4,15 @@ import dynamic from "next/dynamic";
 import { blogService } from "@/services/blogService";
 import "react-quill-new/dist/quill.snow.css";
 import "@/styles/editor.css";
-import { title } from "process";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function BlogEditor() {
   const quillRef = useRef<any>(null);
   const previousImagesRef = useRef<Set<string>>(new Set());
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // 🖼️ Handle image upload
   const imageHandler = async () => {
@@ -37,10 +37,8 @@ export default function BlogEditor() {
         quill.insertEmbed(range.index, "image", secureUrl);
         quill.setSelection(range.index + 1);
 
-        // Add to tracking immediately
         previousImagesRef.current.add(publicId);
 
-        // Set data attribute after DOM render
         setTimeout(() => {
           const img = quill.root.querySelector(`img[src="${secureUrl}"]`);
           if (img) img.setAttribute("data-public-id", publicId);
@@ -52,7 +50,6 @@ export default function BlogEditor() {
     };
   };
 
-  // 🧰 Quill Modules
   const modules = {
     toolbar: {
       container: [
@@ -71,14 +68,15 @@ export default function BlogEditor() {
     },
   };
 
-  // 🧹 Save blog (and delete unused images)
+  // 🧹 Save blog and delete unused images
   const handleSave = async () => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
 
     const html = quill.root.innerHTML;
+    setSaving(true);
 
-    // 1️⃣ Extract all currently used publicIds from the DOM
+    // Collect used publicIds
     const usedPublicIds = new Set<string>();
     const imgs = quill.root.querySelectorAll("img");
     imgs.forEach((img: any) => {
@@ -86,35 +84,33 @@ export default function BlogEditor() {
       if (pid) usedPublicIds.add(pid);
     });
 
-    // 2️⃣ Find unused images (uploaded but not present anymore)
+    // Delete unused images
     const unused = Array.from(previousImagesRef.current).filter(
       (pid) => !usedPublicIds.has(pid)
     );
 
-    // 3️⃣ Call delete API for unused images
     for (const pid of unused) {
       try {
         await blogService.deleteImage(pid);
         previousImagesRef.current.delete(pid);
-        console.log("🗑️ Deleted unused image:", pid);
       } catch (err) {
         console.error("Failed to delete image:", pid, err);
       }
     }
 
-    // 4️⃣ Prepare payload for saving
-    const usedImages = Array.from(usedPublicIds).map((pid) => ({
-      publicId: pid,
-      url: quill.root.querySelector(`img[data-public-id="${pid}"]`)?.src || "",
-    }));
-
-    // 5️⃣ Save blog
     try {
-      await blogService.saveBlog({title, content});
+      await blogService.saveBlog({
+        title,
+        content: html,
+      });
+
+      previousImagesRef.current = new Set(usedPublicIds);
       alert("✅ Blog saved successfully!");
     } catch (err) {
       console.error("Blog save failed:", err);
       alert("Failed to save blog.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -137,9 +133,12 @@ export default function BlogEditor() {
       />
       <button
         onClick={handleSave}
-        className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md font-medium"
+        disabled={saving}
+        className={`mt-6 bg-blue-600 text-white px-5 py-2 rounded-md font-medium ${
+          saving ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+        }`}
       >
-        Publish Post
+        {saving ? "Saving..." : "Publish Post"}
       </button>
     </div>
   );
