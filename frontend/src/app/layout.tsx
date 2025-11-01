@@ -15,12 +15,12 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body>
+      <body className="relative w-full overflow-hidden">
       <AuthProvider>
         <Navbar toggleSidebar={toggleSidebar} />
         <div className="flex h-screen">
           <Sidebar sidebarOpen={sidebarOpen} />
-          <main className="flex-1 p-4">
+          <main className="flex-1 p-4 overflow-auto">
             {children}
             </main>
         </div>
