@@ -40,12 +40,24 @@ func (imgController *ImageController) UploadImage(c *gin.Context) {
 		return
 	}
 
-	tempPath := filepath.Join(os.TempDir(), file.Filename)
+	// ✅ Use your own app-safe temp directory (cross-platform)
+	tempDir := "./temp"
+	if _, err := os.Stat(tempDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(tempDir, 0755); err != nil {
+			c.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: "Failed to create temp directory"})
+			return
+		}
+	}
+
+	tempPath := filepath.Join(tempDir, file.Filename)
+
+	// ✅ Save uploaded file to your own writable folder
 	if err := c.SaveUploadedFile(file, tempPath); err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	defer os.Remove(tempPath)
+	defer os.Remove(tempPath) // Cleanup after upload
+
 	fileData, err := os.Open(tempPath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: "Failed to open file"})
@@ -53,6 +65,7 @@ func (imgController *ImageController) UploadImage(c *gin.Context) {
 	}
 	defer fileData.Close()
 
+	// Upload to Cloudinary (safe)
 	uploadResult, err := imgController.cld.Upload.Upload(context.Background(), fileData, uploader.UploadParams{
 		Folder: "uploads",
 	})
@@ -72,28 +85,27 @@ func (imgController *ImageController) UploadImage(c *gin.Context) {
 	})
 }
 
-
 func (imgController *ImageController) DeleteImage(c *gin.Context) {
 	var body struct {
-        PublicId string `json:"publicId"`
-    }
+		PublicId string `json:"publicId"`
+	}
 
-    if err := c.ShouldBindJSON(&body); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "success": false,
-            "message": "Invalid request body",
-            "error":   err.Error(),
-        })
-        return
-    }
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid request body",
+			"error":   err.Error(),
+		})
+		return
+	}
 
-    if body.PublicId == "" {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "success": false,
-            "message": "Missing publicId field",
-        })
-        return
-    }
+	if body.PublicId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Missing publicId field",
+		})
+		return
+	}
 	_, err := imgController.cld.Upload.Destroy(context.Background(), uploader.DestroyParams{PublicID: body.PublicId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
