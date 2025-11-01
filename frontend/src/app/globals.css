@@ -32,6 +32,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --background: rgb(251, 250, 249);

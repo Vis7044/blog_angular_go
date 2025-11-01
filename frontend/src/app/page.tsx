@@ -1,6 +1,3 @@
-
-export default function Home() {
-
 'use client'
 import Image from 'next/image'
 import { useState } from 'react'
