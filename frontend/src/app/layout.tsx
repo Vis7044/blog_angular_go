@@ -20,7 +20,7 @@ export default function RootLayout({
         <Navbar toggleSidebar={toggleSidebar} />
         <div className="flex h-screen">
           <Sidebar sidebarOpen={sidebarOpen} />
-          <main className="flex-1 p-4 overflow-auto">
+          <main className="flex-1 p-4 w-full overflow-auto">
             {children}
             </main>
         </div>
