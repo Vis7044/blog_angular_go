@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { blogService } from "@/services/blogService";
 import "react-quill-new/dist/quill.snow.css";
 import "@/styles/editor.css";
+import { PreviewBlog } from "./PreviewBlog";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -50,6 +51,37 @@ export default function BlogEditor() {
     };
   };
 
+  const handlePreview = async () => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+
+    const html = quill.root.innerHTML;
+    setContent(html);
+
+    // 🧹 delete unused images before showing preview
+    const usedPublicIds = new Set<string>();
+    const imgs = quill.root.querySelectorAll("img");
+    imgs.forEach((img: any) => {
+      const pid = img.getAttribute("data-public-id");
+      if (pid) usedPublicIds.add(pid);
+    });
+
+    const unused = Array.from(previousImagesRef.current).filter(
+      (pid) => !usedPublicIds.has(pid)
+    );
+
+    for (const pid of unused) {
+      try {
+        await blogService.deleteImage(pid);
+        previousImagesRef.current.delete(pid);
+      } catch (err) {
+        console.error("Failed to delete image:", pid, err);
+      }
+    }
+
+    setPreviewMode(true);
+  };
+
   const modules = {
     toolbar: {
       container: [
@@ -70,50 +102,22 @@ export default function BlogEditor() {
 
   // 🧹 Save blog and delete unused images
   const handleSave = async () => {
-    const quill = quillRef.current?.getEditor();
-    if (!quill) return;
-
-    const html = quill.root.innerHTML;
     setSaving(true);
+
     if (title.trim() === "") {
       alert("Title cannot be empty.");
       setSaving(false);
       return;
     }
-    if (html.trim() === "" || html === "<p><br></p>") {
+    if (content.trim() === "" || content === "<p><br></p>") {
       alert("Content cannot be empty.");
       setSaving(false);
       return;
     }
-    // Collect used publicIds
-    const usedPublicIds = new Set<string>();
-    const imgs = quill.root.querySelectorAll("img");
-    imgs.forEach((img: any) => {
-      const pid = img.getAttribute("data-public-id");
-      if (pid) usedPublicIds.add(pid);
-    });
-
-    // Delete unused images
-    const unused = Array.from(previousImagesRef.current).filter(
-      (pid) => !usedPublicIds.has(pid)
-    );
-
-    for (const pid of unused) {
-      try {
-        await blogService.deleteImage(pid);
-        previousImagesRef.current.delete(pid);
-      } catch (err) {
-        console.error("Failed to delete image:", pid, err);
-      }
-    }
 
     try {
-      await blogService.saveBlog({
-        title,
-        content: html,
-      });
-
-      previousImagesRef.current = new Set(usedPublicIds);
+      await blogService.saveBlog({ title, content });
+      alert("Blog saved successfully!");
     } catch (err) {
       console.error("Blog save failed:", err);
       alert("Failed to save blog.");
@@ -124,48 +128,42 @@ export default function BlogEditor() {
 
   return (
     <div>
-      {!previewMode ? (<div className="flex flex-col mx-auto p-6 w-full">
-      <div className="flex justify-between items-center w-[80%] mx-auto mb-4">
-        <h1 className="text-3xl font-semibold mb-2">
-          What&apos;s in your mind today!
-        </h1>
+      
+      {!previewMode ? (
+        <div className="flex flex-col mx-auto p-6 w-full">
+          <div className="flex justify-between items-center w-[80%] mx-auto mb-4">
+            <h1 className="text-3xl font-semibold mb-2">
+              What&apos;s in your mind today!
+            </h1>
 
-        <div>
-          <button
-              onClick={() => setPreviewMode(true)}
-              className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
-            >
-              👀 Preview
-            </button>
-        </div>
-      </div>
-      <div className="max-w-6xl flex flex-col mx-auto p-6 w-full">
-        <textarea
-          placeholder="Enter title..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 max-h-20 border border-gray-300 font-semibold text-gray-700 rounded-md mb-4 text-2xl focus:outline-none"
-        />
-        <ReactQuill
-          ref={quillRef}
-          theme="snow"
-          value={content}
-          onChange={setContent}
-          modules={modules}
-          placeholder="Write something awesome..."
-        />
-      </div>
-    </div>):
-    (
-      <div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h1 className="text-3xl font-bold mb-4">{title}</h1>
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: content }}
+            <div>
+              <button
+                onClick={handlePreview}
+                className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
+              >
+                👀 Preview
+              </button>
+            </div>
+          </div>
+          <div className="max-w-6xl flex flex-col mx-auto p-6 w-full">
+            <textarea
+              placeholder="Enter title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-3 max-h-20 border border-gray-300 font-semibold text-gray-700 rounded-md mb-4 text-2xl focus:outline-none"
+            />
+            <ReactQuill
+              ref={quillRef}
+              theme="snow"
+              value={content}
+              onChange={setContent}
+              modules={modules}
+              placeholder="Write something awesome..."
             />
           </div>
-
+        </div>
+      ) : (
+        <div>
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={() => setPreviewMode(false)}
@@ -174,14 +172,20 @@ export default function BlogEditor() {
               ✏️ Back to Edit
             </button>
             <button
+              disabled={saving}
               onClick={handleSave}
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md"
+              className={`bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md ${
+                saving ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              🚀 Publish
+              {saving ? "Saving..." : "🚀 Publish"}
             </button>
           </div>
-      </div>
-        )}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <PreviewBlog title={title} content={content} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
