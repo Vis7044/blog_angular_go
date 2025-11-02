@@ -5,6 +5,7 @@ import { blogService } from "@/services/blogService";
 import "react-quill-new/dist/quill.snow.css";
 import "@/styles/editor.css";
 import { PreviewBlog } from "./PreviewBlog";
+import { Edit3, Play, Upload } from "lucide-react";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -128,7 +129,6 @@ export default function BlogEditor() {
 
   return (
     <div>
-      
       {!previewMode ? (
         <div className="flex flex-col mx-auto p-6 w-full">
           <div className="flex justify-between items-center w-[80%] mx-auto mb-4">
@@ -139,9 +139,10 @@ export default function BlogEditor() {
             <div>
               <button
                 onClick={handlePreview}
-                className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
+                className="flex items-center gap-2 px-5 py-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white cursor-pointer shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
               >
-                👀 Preview
+                <Play className="w-4 h-4" />
+                <span>Preview</span>
               </button>
             </div>
           </div>
@@ -167,21 +168,27 @@ export default function BlogEditor() {
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={() => setPreviewMode(false)}
-              className="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-md"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gray-100 cursor-pointer hover:bg-gray-200 text-gray-700 shadow-sm hover:shadow transition-all duration-200"
             >
-              ✏️ Back to Edit
+              <Edit3 className="w-4 h-4" />
+              <span>Back to Edit</span>
             </button>
+
             <button
               disabled={saving}
               onClick={handleSave}
-              className={`bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md ${
-                saving ? "opacity-50 cursor-not-allowed" : ""
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-white shadow-md transition-all cursor-pointer duration-200 ${
+                saving
+                  ? "bg-green-400 opacity-60 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 hover:shadow-lg hover:scale-[1.02]"
               }`}
             >
-              {saving ? "Saving..." : "🚀 Publish"}
+              <Upload className="w-4 h-4" />
+              <span>{saving ? "Saving..." : "Publish"}</span>
             </button>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
+
+          <div className="bg-white p-6 mt-3 rounded-lg shadow-md">
             <PreviewBlog title={title} content={content} />
           </div>
         </div>

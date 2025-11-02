@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from "react";
-import { blogService } from "@/services/blogService";
+import { Blog, blogService } from "@/services/blogService";
 
 export default function Blogs() {
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
 
   const getAllBlogs = async () => {
     try {

@@ -55,3 +55,6 @@
 .ql-container::-webkit-scrollbar-thumb {
   background: #ccc;
 }
+button {
+  transition: all 0.2s ease-in-out;
+}
