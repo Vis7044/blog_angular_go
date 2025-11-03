@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function HomePage() {
@@ -133,9 +134,9 @@ export default function HomePage() {
                 <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">{a.category}</p>
                 <h3 className="text-xl font-semibold mb-2">{a.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{a.desc}</p>
-                <button className="text-sm font-medium text-gray-900 hover:underline">
+                <Link href="/previewBlog"className="text-sm font-medium text-gray-900 hover:underline">
                   Read more →
-                </button>
+                </Link>
               </div>
             </div>
           ))}

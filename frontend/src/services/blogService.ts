@@ -13,6 +13,11 @@ export interface Blog {
   updatedAt?: string;          
 }
 
+export enum Status {
+  Draft = 0,
+  Published = 1,
+  Archived = 2,
+}
 
 class BlogService {
   baseUrl = '/blogs';
@@ -34,7 +39,7 @@ class BlogService {
     });
   }
 
-  saveBlog = async (blogData: {title: string; content: string}): Promise<void> => {
+  saveBlog = async (blogData: {title: string; content: string, status:Status, coverPhoto: string, tags: string[]}): Promise<void> => {
     await apiClient.post(`${this.baseUrl}`, blogData);
   }
 

@@ -15,7 +15,7 @@ interface SignupData {
 class AuthService {
   baseRoute = "/auth";
 
-  signup = async (userData: SignupData) => apiClient.post("/register", userData);
+  signup = async (userData: SignupData) => apiClient.post(`${this.baseRoute}/registera`, userData);
   login = async (credentials: LoginCredentials) => apiClient.post(`${this.baseRoute}/login`, credentials);
   logout = async () => apiClient.post(`${this.baseRoute}/logout`);
   fetchCurrentUser = async () => apiClient.get(`${this.baseRoute}/logedinuser`);
