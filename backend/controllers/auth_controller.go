@@ -34,36 +34,48 @@ func (ac *AuthController) RegisterController(c *gin.Context) {
 }
 
 func (ac *AuthController) Login(ctx *gin.Context) {
-	var input struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
-	}
-	if input.Email == "" || input.Password == "" {
-		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Please provice email or password"})
-		return
-	}
-	access_token, refresh_token, err := ac.service.Login(ctx, input.Email, input.Password)
-	// Set refresh token in HttpOnly cookie
+    var input struct {
+        Email    string `json:"email"`
+        Password string `json:"password"`
+    }
+    
+    if err := ctx.ShouldBindJSON(&input); err != nil {
+        ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+        return
+    }
+    
+    if input.Email == "" || input.Password == "" {
+        ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Please provide email or password"})
+        return
+    }
+    
+    access_token, refresh_token, err := ac.service.Login(ctx, input.Email, input.Password)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+        return
+    }
+    
+    // Use Gin's SetCookie method
+    ctx.SetCookie(
+        "accessToken",           // name
+        access_token,            // value
+        15*60,                   // maxAge (seconds)
+        "/",                     // path
+        "",                      // domain (empty = current domain)
+        false,                   // secure (set true in production)
+        true,                    // httpOnly
+    )
+    
     ctx.SetCookie(
         "refreshToken",
         refresh_token,
-        7*24*60*60, // 7 days in seconds
+        7*24*60*60,              // 7 days
         "/",
         "",
-        false,                 // Secure: only over HTTPS
-        true,                 // HttpOnly
+        false,                   // secure (set true in production)
+        true,                    // httpOnly
     )
-	ctx.Header("Set-Cookie", ctx.Writer.Header().Get("Set-Cookie")+"; SameSite=Lax")
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
-		return
-	}
-	fmt.Print(access_token)
-	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: access_token})
-
+    ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Login successful"})
 }
 
 /*
@@ -156,5 +168,15 @@ func (ac *AuthController) Logout(ctx *gin.Context) {
         false,                 
         true,                 
     )
+	ctx.SetCookie(
+        "accessToken",
+        "",
+        -1, 
+        "/",
+        "",
+        false,                 
+        true,                 
+    )
+	
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Logged out successfully"})
 }

@@ -7,16 +7,15 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func (ctx *gin.Context) {
-		tokenString := ctx.GetHeader("Authorization")
+		tokenString, err := ctx.Cookie("accessToken")
+		if err != nil {
+			ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Authorization cookie is missing"})
+			return
+		}
 		if tokenString == "" {
-			ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Authorization header is missing"})
+			ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Authorization cookie is missing"})
 			return
 		}
-		if len(tokenString) < 7 || tokenString[:7] != "Bearer " {
-			ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Invalid token format"})
-			return
-		}
-		tokenString = tokenString[7:]
 		claims, err := utils.ParseToken(tokenString)
 		if err != nil {
 			ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Invalid or expired token"})

@@ -6,6 +6,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, 
 });
 
 let isRefreshing = false; // Tracks if refresh call is in progress
@@ -22,17 +23,6 @@ const onRrefreshed = (newToken: string) => {
   refreshSubscribers = [];
 };
 
-// Request Interceptor – attach access token to every outgoing request
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken"); // Access token stored in localStorage
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Response Interceptor – handles expired access tokens (401 errors)
 apiClient.interceptors.response.use(
