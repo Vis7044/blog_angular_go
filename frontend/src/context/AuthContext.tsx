@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 🔹 Fetch current user (called on mount)
   const fetchUser = async () => {
     try {
-      const res = await apiClient.get("/auth/me");
+      const res = await apiClient.get("/auth/logedinuser");
       setUser(res.data.data);
     } catch (err) {
       const axiosError = err as AxiosError;
