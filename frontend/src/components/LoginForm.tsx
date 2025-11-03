@@ -21,7 +21,6 @@ export const LoginForm = ({ onClose }: { onClose: () => void }) => {
       }
       await fetchUser();
       onClose();
-      router.push("/");
     } catch (e) {
       setError("Invalid credentials");
       console.error("Login failed:", e);

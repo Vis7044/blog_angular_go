@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 
-export const PreviewBlog = ({title, content}) => {
+export const PreviewBlog = ({title, content}:{title:string,content:string}) => {
     const cleanHTML = (html: string) => {
         if (!html) return "";
         return html

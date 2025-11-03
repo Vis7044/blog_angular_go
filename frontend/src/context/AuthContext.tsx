@@ -54,9 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.warn("Logout failed:", err);
     } finally {
       setUser(null);
-      if (typeof window !== "undefined") {
-        window.location.href = "/";
-      }
     }
   };
 

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Navbar } from '../components/Navbar'
 import { Sidebar } from '../components/Sidebar'
 import { AuthProvider } from '@/context/AuthContext'
+import { Toaster } from 'react-hot-toast';
+import { GlobalLoginProvider } from '@/context/GlobalLoginProvider'
 
 export default function RootLayout({
   children,
@@ -18,10 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="relative w-full h-screen overflow-hidden bg-gray-50 font-inter">
+        <Toaster position="top-right" />
         <AuthProvider>
+          <GlobalLoginProvider>
           {/* Navbar (fixed height) */}
           <div
-            className="fixed top-0 left-0 right-0 z-50"
+            className="fixed top-0 left-0 right-0 z-30"
             style={{ height: `${NAVBAR_HEIGHT}px` }}
           >
             <Navbar toggleSidebar={toggleSidebar} />
@@ -37,6 +41,7 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+          </GlobalLoginProvider>
         </AuthProvider>
       </body>
     </html>
