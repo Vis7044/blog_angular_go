@@ -9,7 +9,7 @@ import (
 func BlogRoute(r *gin.Engine, blogController *controllers.BlogController) {
 	blog := r.Group("/api/blogs") 
 	{
-		blog.GET("", middleware.AuthMiddleware(), blogController.GetAllBlogsController)
+		blog.GET("", blogController.GetAllBlogsController)
 		blog.POST("", middleware.AuthMiddleware(),blogController.CreateBlogController)
 	}
 }
