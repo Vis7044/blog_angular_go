@@ -16,11 +16,9 @@ export const LoginForm = ({ onClose }: { onClose: () => void }) => {
     e.preventDefault();
     try {
       const resp = await authService.login({email, password});
-      console.log("Login response:", resp);
       if (!resp.data.success) {
         throw new Error("Login failed");
       }
-      localStorage.setItem("authToken", resp.data.data);
       await fetchUser();
       onClose();
       router.push("/");
