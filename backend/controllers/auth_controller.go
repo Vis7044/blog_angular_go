@@ -133,12 +133,21 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 	newAccessToken, err := ac.service.RefreshTokens(ctx, refreshToken)
+	ctx.SetCookie(
+		"accessToken",           // name
+		newAccessToken,            // value
+		15*60,                   // maxAge (seconds)
+		"/",                     // path
+		"",                      // domain (empty = current domain)
+		false,                   // secure (set true in production)
+		true,                    // httpOnly
+	)
 	if err != nil {
 		ctx.JSON(401, utils.Response[string]{Success: false, Data: "Invalid refresh token"})
 		return
 	}
 	
-	ctx.JSON(200, utils.Response[string]{Success: true, Data: newAccessToken})
+	ctx.JSON(200, utils.Response[string]{Success: true, Data: "Access token refreshed successfully"})
 }
 
 

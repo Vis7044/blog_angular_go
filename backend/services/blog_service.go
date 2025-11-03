@@ -20,7 +20,7 @@ func NewBlogService(r *repositories.BlogRepository) *BlogService {
 	}
 }
 
-func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, tags []string) (string, error) {
+func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status,coverPhoto string, tags []string) (string, error) {
 	if title == "" {
 		return "", errors.New("title is required")
 	}
@@ -38,6 +38,7 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 		Status:   status,
 		Likes:    []primitive.ObjectID{},
 		Comments: []primitive.ObjectID{},
+		CoverPhoto: coverPhoto,
 		Tags:     tags,
 		CreatedAt: primitive.DateTime(time.Now().Unix()),
 		UpdatedAt: primitive.DateTime(time.Now().Unix()),
