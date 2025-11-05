@@ -2,8 +2,10 @@ package repositories
 
 import (
 	"context"
+
 	"github.com/blog_go/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -37,6 +39,16 @@ func (blogRepository *BlogRepository) GetAllBlogs(ctx context.Context) ([]models
 		return nil, err
 	}
 	return blogs, nil
+}
+
+func (blogRepository *BlogRepository) GetBlogsByDetails(ctx context.Context, blogId primitive.ObjectID) (models.Blog, error) {
+	blog := models.Blog{}
+	filter := bson.M{"_id": blogId}
+	err := blogRepository.blogCollection.FindOne(ctx, filter).Decode(&blog)
+	if err != nil {
+		return models.Blog{}, err
+	}
+	return blog, nil
 }
 
 
