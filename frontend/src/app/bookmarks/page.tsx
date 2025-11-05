@@ -1,9 +1,19 @@
-function Bookmarks() {
+// app/blog/[id]/page.tsx
+"use client";
+
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
+import { BlogSkeleton } from "@/components/BlogSkeleton";
+
+
+export default function BlogDetail() {
+  
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">Bookmarks</h1>
+    <div className="max-w-3xl mx-auto p-6">
+      
+      <BlogSkeleton />
+
     </div>
   );
 }
-
-export default Bookmarks;

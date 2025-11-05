@@ -328,6 +328,7 @@ body {
 }
 
 /* --- Copy button --- */
+/* --- Copy button (updated for visibility) --- */
 .blog-content .copy-btn {
   position: absolute;
   top: 8px;
@@ -339,8 +340,14 @@ body {
   font-size: 12px;
   border-radius: 4px;
   cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.2s, background 0.2s;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  z-index: 10; /* ✅ ensures visibility above code */
+}
+
+/* Show button on hover */
+.blog-content .ql-code-block-container:hover .copy-btn {
+  opacity: 1;
 }
 
 .blog-content .copy-btn:hover {

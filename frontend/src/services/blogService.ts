@@ -65,6 +65,12 @@ class BlogService {
     }
   }
 
+  getBlogById = async (blogId: string): Promise<Blog> =>{
+    const response = await apiClient.get(`${this.baseUrl}/${blogId}`);
+    console.log("Fetched blog with ID : ", response.data.data);
+    return response.data.data;
+  }
+
 }
 
 

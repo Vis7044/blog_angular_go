@@ -5,6 +5,7 @@ import { blogService, Blog } from "@/services/blogService";
 import { BlogCard } from "@/components/BlogCard";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import OverlaySpinner from "@/components/OverlaySpinner";
 
 export default function MyBlogs() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -28,8 +29,8 @@ export default function MyBlogs() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+      <div className="flex justify-center items-center">
+        <OverlaySpinner />
       </div>
     );
   }
@@ -43,7 +44,7 @@ export default function MyBlogs() {
   }
 
   return (
-    <div className="h-full rounded-xl bg-gray-50 py-10 px-6">
+    <div className="h-auto rounded-xl bg-gray-50 py-10 px-6">
       {/* Page Header */}
       <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
         <div>
@@ -78,7 +79,7 @@ export default function MyBlogs() {
               <BlogCard
                 key={blog._id}
                 blog={{ ...blog, _id: blog._id || "", comments: blog.comments.map((comment) => comment.toString()) }}
-                onClick={(id) => router.push(`/previewBlog`)}
+                onClick={(id) => router.push(`/blogs/${id}`)}
               />
             ))}
           </div>
