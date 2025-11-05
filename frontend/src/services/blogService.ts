@@ -19,6 +19,12 @@ export enum Status {
   Archived = 2,
 }
 
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+
 class BlogService {
   baseUrl = '/blogs';
 
@@ -49,6 +55,18 @@ class BlogService {
     return response.data.data;
   }
 
+  getBlogsByUser = async (): Promise<Blog[]> => {
+    try {
+      const response = await apiClient.get<ApiResponse<Blog[]>>("/auth/allblogs");
+      return response.data.data;
+    } catch (error: any) {
+      console.error("Error fetching user blogs:", error);
+      throw error.response?.data?.data || "Failed to fetch user blogs";
+    }
+  }
+
 }
+
+
 
 export const blogService = new BlogService();
