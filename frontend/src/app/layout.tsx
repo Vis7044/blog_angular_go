@@ -15,11 +15,11 @@ export default function RootLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
-  const NAVBAR_HEIGHT = 64 // in pixels, matches p-4 (16px x 4)
+  const NAVBAR_HEIGHT = 64 
 
   return (
     <html lang="en">
-      <body className="relative w-full h-screen overflow-hidden bg-gray-50 font-inter">
+      <body className="relative w-full h-full overflow-hidden bg-gray-50 font-inter">
         <Toaster position="top-right" />
         <AuthProvider>
           <GlobalLoginProvider>
