@@ -112,13 +112,9 @@ func (ar *AuthRepository) UpdateUserBio(ctx context.Context, id primitive.Object
 
 }
 
-func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId string) ([]models.Blog, error) {
+func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId primitive.ObjectID) ([]models.Blog, error) {
 	var blogs []models.Blog
-	id, err := primitive.ObjectIDFromHex(userId)
-	if err != nil {
-		return nil, errors.New("invalid user id")
-	}
-	filter := bson.M{"userId":id}
+	filter := bson.M{"userId": userId}
 	cursor, err := ar.blog_collection.Find(ctx, filter)
 	if err != nil {
 		return nil, errors.New("could not fetch blogs")

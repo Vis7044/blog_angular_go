@@ -67,3 +67,13 @@ func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
 	}
 	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
 }
+
+func (blogController *BlogController) GetBlogsByDetailsController(ctx *gin.Context) {
+	blogId := ctx.Param("id")
+	blog, err := blogController.blogService.GetBlogsByDetails(ctx.Request.Context(), blogId)
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to fetch blog details: " + err.Error()})
+		return
+	}
+	ctx.JSON(200, utils.Response[models.Blog]{Success: true, Data: blog})
+}

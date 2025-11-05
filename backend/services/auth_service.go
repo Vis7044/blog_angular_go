@@ -152,7 +152,11 @@ func (as *AuthService) GetLoggedInUser(ctx context.Context, email string) (model
 	return *user, nil
 }
 
-func (as *AuthService) GetAllBlogsByUserId(ctx context.Context, userId string) ([]models.Blog, error) {
+func (as *AuthService) GetAllBlogsByUserId(ctx context.Context, id string) ([]models.Blog, error) {
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, errors.New("invalid user id")
+	}
 	blogs, err := as.repo.GetBlogsByUserId(ctx, userId)
 	if err != nil {
 		return nil, errors.New("could not fetch blogs for user")

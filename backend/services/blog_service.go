@@ -49,3 +49,11 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 func (blogservice *BlogService) GetAllBlogs(ctx context.Context) ([]models.Blog, error) {
 	return blogservice.blog_repository.GetAllBlogs(ctx)
 }
+
+func (blogservice *BlogService) GetBlogsByDetails(ctx context.Context, id string) (models.Blog, error) { 
+	blogId , err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return models.Blog{}, errors.New("invalid blog id")
+	}
+	return blogservice.blog_repository.GetBlogsByDetails(ctx, blogId)
+}
