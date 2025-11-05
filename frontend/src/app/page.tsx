@@ -55,7 +55,7 @@ export default function HomePage() {
       ? articles
       : articles.filter((a) => a.category === activeCategory)
   return (
-    <div className="min-h-screen bg-white text-gray-900 mb-4">
+    <div className="bg-white text-gray-900 mb-4">
       {/* HERO SECTION */}
       <section className="max-w-6xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-6">
         {/* Main featured article */}

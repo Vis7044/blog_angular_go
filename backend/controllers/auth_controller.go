@@ -189,3 +189,17 @@ func (ac *AuthController) Logout(ctx *gin.Context) {
 	
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Logged out successfully"})
 }
+
+func (ac *AuthController) GetAllBlogsOfUser(ctx *gin.Context) {
+	userId, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response[string]{Success: false, Data: "User not logged in"})
+		return
+	}
+	blogs, err := ac.service.GetAllBlogsByUserId(ctx, userId.(string))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}

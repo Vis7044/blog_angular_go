@@ -14,12 +14,14 @@ import (
 )
 
 type AuthRepository struct {
-	collection *mongo.Collection
+	user_collection *mongo.Collection
+	blog_collection *mongo.Collection
 }
 
 func NewAuthRepository(db *mongo.Database) *AuthRepository {
 	return &AuthRepository{
-		collection: db.Collection("User"),
+		user_collection: db.Collection("User"),
+		blog_collection: db.Collection("blogs"),
 	}
 }
 
@@ -50,7 +52,7 @@ Also, if the client cancels the request, Go cancels the context too — freeing 
 func (ar *AuthRepository) Register(ctx context.Context, user models.User) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	_, err := ar.collection.InsertOne(ctx, user)
+	_, err := ar.user_collection.InsertOne(ctx, user)
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +61,7 @@ func (ar *AuthRepository) Register(ctx context.Context, user models.User) (strin
 
 func (ar *AuthRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
-	err := ar.collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	err := ar.user_collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
 		return nil, errors.New("User not found")
 	}
@@ -68,7 +70,7 @@ func (ar *AuthRepository) FindByEmail(ctx context.Context, email string) (*model
 
 func (ar *AuthRepository) FindByUserId(ctx context.Context, id primitive.ObjectID) (*models.User, error) {
 	var user models.User
-	err := ar.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+	err := ar.user_collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
 	if err != nil {
 		return nil, errors.New("User not found")
 	}
@@ -82,7 +84,7 @@ func (ar *AuthRepository) UpdateUserProfile(ctx context.Context, id primitive.Ob
 			"profilePic": user.ProfilePic,
 		},
 	}
-	_, err := ar.collection.UpdateByID(ctx, id, update)
+	_, err := ar.user_collection.UpdateByID(ctx, id, update)
 	fmt.Println(err)
 
 	if err != nil {
@@ -99,7 +101,7 @@ func (ar *AuthRepository) UpdateUserBio(ctx context.Context, id primitive.Object
 			"bio": user.Bio,
 		},
 	}
-	_, err := ar.collection.UpdateByID(ctx, id, update)
+	_, err := ar.user_collection.UpdateByID(ctx, id, update)
 	fmt.Println(err)
 
 	if err != nil {
@@ -108,4 +110,23 @@ func (ar *AuthRepository) UpdateUserBio(ctx context.Context, id primitive.Object
 
 	return nil
 
+}
+
+func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId string) ([]models.Blog, error) {
+	var blogs []models.Blog
+	id, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return nil, errors.New("invalid user id")
+	}
+	filter := bson.M{"userId":id}
+	cursor, err := ar.blog_collection.Find(ctx, filter)
+	if err != nil {
+		return nil, errors.New("could not fetch blogs")
+	}
+	defer cursor.Close(ctx)
+	if err = cursor.All(ctx, &blogs); err != nil {
+		return nil, errors.New("error decoding blogs")
+	}
+	fmt.Println("Blogs fetched for user:", blogs, userId)
+	return blogs, nil
 }
