@@ -159,11 +159,20 @@ func (ac *AuthController) LoggedInUserController(ctx *gin.Context) {
 	}
 
 	user, err := ac.service.GetLoggedInUser(ctx, email.(string))
+	var userResponse models.UserResponse
+	userResponse.Id = user.Id
+	userResponse.Username = user.Username
+	userResponse.ProfilePic = user.ProfilePic
+	userResponse.Email = user.Email
+	userResponse.Name = user.Name
+	userResponse.Bio = user.Bio
+	userResponse.IsAdmin = user.IsAdmin
+	userResponse.Saved = user.Saved
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, utils.Response[models.User]{Success: true, Data: user})
+	ctx.JSON(http.StatusOK, utils.Response[models.UserResponse]{Success: true, Data: userResponse})
 }
 
 func (ac *AuthController) Logout(ctx *gin.Context) {

@@ -25,30 +25,6 @@ func NewAuthRepository(db *mongo.Database) *AuthRepository {
 	}
 }
 
-/*
-Temp: context.Context is a built-in Go interface used to control the lifecycle of a request or operation —
-like timeouts, cancellations, and passing metadata across function calls.
-You might write:
-
-result, err := collection.FindOne(nil, filter)
-
-
-Here, nil means no context — so the operation runs until it’s done, even if the client disconnects.
-
-✅ Example: With context
-
-You can instead write:
-
-ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-defer cancel()
-
-result := collection.FindOne(ctx, filter)
-
-
-Now the MongoDB query will auto-cancel if it takes more than 5 seconds.
-Also, if the client cancels the request, Go cancels the context too — freeing resources
-*/
-
 func (ar *AuthRepository) Register(ctx context.Context, user models.User) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
