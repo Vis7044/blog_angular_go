@@ -23,8 +23,11 @@ type Blog struct {
 	UserId  primitive.ObjectID      `bson:"userId" json:"userID"`
 	Title   string                  `bson:"title" json:"title"`
 	Content string                  `bson:"content" json:"content"`
+	CoverPhoto string               `bson:"coverPhoto" json:"coverPhoto"`
 	Likes    []primitive.ObjectID   `bson:"likes" json:"likes"`
 	Comments []primitive.ObjectID   `bson:"comments" json:"comments"`
 	Status   Status                 `bson:"status" json:"status"`
 	Tags	 []string                `bson:"tags" json:"tags"`
+	CreatedAt primitive.DateTime     `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UpdatedAt primitive.DateTime     `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }

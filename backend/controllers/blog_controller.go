@@ -40,6 +40,7 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 		Title   string `json:"title" binding:"required"`
 		Content string `json:"content" binding:"required"`
 		Status  models.Status `json:"status"`
+		CoverPhoto string `json:"coverPhoto"`
 		Tags    []string `json:"tags"`
 	}
 	if err := ctx.ShouldBindJSON(&blogInput); err != nil {
@@ -47,7 +48,7 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 		return
 	}
 
-	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.Tags)
+	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.CoverPhoto,blogInput.Tags)
 	if err != nil {
 		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to create blog: " + err.Error()})
 		return
@@ -65,4 +66,14 @@ func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}
+
+func (blogController *BlogController) GetBlogsByDetailsController(ctx *gin.Context) {
+	blogId := ctx.Param("id")
+	blog, err := blogController.blogService.GetBlogsByDetails(ctx.Request.Context(), blogId)
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to fetch blog details: " + err.Error()})
+		return
+	}
+	ctx.JSON(200, utils.Response[models.Blog]{Success: true, Data: blog})
 }

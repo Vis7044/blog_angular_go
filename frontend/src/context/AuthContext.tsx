@@ -1,53 +1,79 @@
 "use client";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import axios from "axios";
 
-interface AuthContextType {
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  loading: boolean;
+import { createContext, useState, useEffect, useContext, ReactNode } from "react";
+import { AxiosError } from "axios";
+import apiClient from "@/utils/axiosInstance";
+import OverlaySpinner from "@/components/OverlaySpinner";
+
+// 1️⃣ User interface
+interface User {
+  id: string;
+  email: string;
+  name?: string;
 }
 
+// 2️⃣ Context type
+interface AuthContextType {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  loading: boolean;
+  logout: () => Promise<void>;
+  fetchUser: () => Promise<void>;
+}
+
+// 3️⃣ Create context
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// 4️⃣ AuthProvider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore token from localStorage
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
+  // 🔹 Fetch current user (called on mount)
+  const fetchUser = async () => {
+    try {
+      const res = await apiClient.get("/auth/logedinuser");
+      setUser(res.data.data);
+    } catch (err) {
+      const axiosError = err as AxiosError;
+      if (axiosError.response?.status === 401) {
+        setUser(null);
+      } else {
+        console.error("Error fetching user:", err);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // 🔹 Logout user
+  const logout = async () => {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    } finally {
+      setUser(null);
+    }
+  };
+
+  // 🔹 On mount
+  useEffect(() => {
+    fetchUser();
   }, []);
 
-  // Login function
-  const login = async (email: string, password: string) => {
-    const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
-    const { token } = res.data;
-
-    localStorage.setItem("token", token);
-    setToken(token);
-    console.log(res)
-  };
-
-  // Logout function
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-  };
+  if (loading) {
+    return <OverlaySpinner />;
+  }
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, logout, loading, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook
+// 5️⃣ Hook for usage
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
