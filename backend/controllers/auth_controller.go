@@ -30,7 +30,7 @@ func (ac *AuthController) RegisterController(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, utils.Response[string]{Success: false, Data: result})
+	c.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: result})
 }
 
 func (ac *AuthController) Login(ctx *gin.Context) {

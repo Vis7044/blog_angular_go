@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
+	"strconv"
 
 	"github.com/blog_go/config"
 	"github.com/blog_go/models"
@@ -26,8 +27,8 @@ func NewAuthService(r *repositories.AuthRepository) *AuthService {
 
 func (as *AuthService) Register(ctx context.Context, user models.User) (string, error) {
 	user.Id = primitive.NewObjectID()
-	if user.Username == "" {
-		return "", errors.New("username is required")
+	if user.Name == "" {
+		return "", errors.New("Name is required")
 	}
 	if user.Email == "" {
 		return "", errors.New("email is required")
@@ -40,6 +41,11 @@ func (as *AuthService) Register(ctx context.Context, user models.User) (string, 
 		return "", err
 	}
 	user.Password = string(hashedPassword)
+	user.Username,err =as.GetUserName(user.Name,ctx)
+	if err != nil {
+		return "", err
+	}
+	fmt.Println("UserName is : "+user.Username)
 
 	return as.repo.Register(ctx, user)
 }
@@ -116,6 +122,20 @@ func (as *AuthService) Updatebio(ctx context.Context, idstr string, bio string) 
 	user.Bio = bio
 	errs = as.repo.UpdateUserBio(ctx, id, user)
 	return errs
+}
+
+/*This function is converting name into unique username suppose name is rahul then first 3 letter of rahul plus total user till but in 
+Four digits so the username will be Rah+0001=Rah001*/
+func (as *AuthService) GetUserName(name string,ctx context.Context) (string,error){
+	totalUser,err:=as.repo.GetTotalUsers(ctx)
+
+	if err!=nil{
+		return "",err
+	}
+
+	var increment string="0000"+strconv.Itoa(totalUser)
+
+	return name[:3]+increment[len(increment)-4:],nil
 }
 
 
