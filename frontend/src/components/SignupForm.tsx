@@ -7,7 +7,6 @@ export const SignupForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    username: '',
     password: '',
   })
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
@@ -19,7 +18,6 @@ export const SignupForm = ({ onClose }: { onClose: () => void }) => {
     const newErrors: { [key: string]: string } = {}
 
     if (!formData.name.trim()) newErrors.name = 'Full name is required.'
-    if (!formData.username.trim()) newErrors.username = 'Username is required.'
     if (!formData.email.trim()) newErrors.email = 'Email is required.'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = 'Enter a valid email address.'
@@ -71,21 +69,6 @@ export const SignupForm = ({ onClose }: { onClose: () => void }) => {
               } focus:border-green-500 focus:ring focus:ring-green-100 rounded-md p-2 w-full transition`}
             />
             {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
-          </div>
-
-          <div>
-            <input
-              type="text"
-              placeholder="Username"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className={`border ${
-                errors.username ? 'border-red-400' : 'border-gray-300'
-              } focus:border-green-500 focus:ring focus:ring-green-100 rounded-md p-2 w-full transition`}
-            />
-            {errors.username && (
-              <p className="text-sm text-red-500 mt-1">{errors.username}</p>
-            )}
           </div>
 
           <div>
