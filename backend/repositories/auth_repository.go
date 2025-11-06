@@ -109,3 +109,17 @@ func (ar *AuthRepository) UpdateUserBio(ctx context.Context, id primitive.Object
 	return nil
 
 }
+
+// GetTotalUsers counts total number of users in the "User" collection.
+func (ar *AuthRepository) GetTotalUsers(ctx context.Context) (int, error) {
+    // Using context with timeout for safety
+    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+    count, err := ar.collection.CountDocuments(ctx, bson.M{})
+    if err != nil {
+        return 0, err
+    }
+
+    return int(count), nil
+}
