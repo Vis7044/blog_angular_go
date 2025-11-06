@@ -20,12 +20,12 @@ export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { href: "/", label: "Home", icon: House },
-    { href: "/blogs", label: "Blogs", icon: BookOpenText },
-    { href: "/contact", label: "Contact", icon: Phone },
-    { href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
-    { href: "/profile", label: "Profile", icon: CircleUserRound },
-    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/", label: "Home", icon: House , disabled: false},
+    { href: "/blogs", label: "Blogs", icon: BookOpenText, disabled: user ? false : true },
+    { href: "/contact", label: "Contact", icon: Phone, disabled: false },
+    { href: "/bookmarks", label: "Bookmarks", icon: Bookmark, disabled: user ? false : true },
+    { href: "/profile", label: "Profile", icon: CircleUserRound, disabled: user ? false : true },
+    { href: "/settings", label: "Settings", icon: Settings, disabled: user ? false : true },
   ];
 
   return (
@@ -58,13 +58,14 @@ export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
         {/* --- Navigation --- */}
         <nav className="flex-1 px-3 space-y-1">
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon, disabled }) => {
             const isActive = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
-                className={`group relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-300 ease-out ${
+
+                className={`group relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-300 ease-out ${disabled && 'hidden'} ${
                   isActive
                     ? "text-gray-900 font-medium"
                     : "text-gray-600 hover:text-gray-900"
