@@ -7,10 +7,11 @@ import (
 )
 
 func BlogRoute(r *gin.Engine, blogController *controllers.BlogController) {
-	blog := r.Group("/api/blogs") 
+	blog := r.Group("/api/blogs")
 	{
 		blog.GET("", blogController.GetAllBlogsController)
 		blog.POST("", middleware.AuthMiddleware(), blogController.CreateBlogController)
-		blog.GET("/:id", blogController.GetBlogsByDetailsController)	
+		blog.GET("/:id", blogController.GetBlogsByDetailsController)
+		blog.POST("like/:id", middleware.AuthMiddleware(), blogController.LikeBlogController)
 	}
 }
