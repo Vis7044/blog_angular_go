@@ -142,7 +142,16 @@ export const SignupForm = ({
           Sign up with Google
         </button>
       </form>
-
+        
+      <p className="mt-4 text-center text-sm text-gray-500">
+        Already have an account?{" "}
+        <button
+          onClick={onSwitchToLogin}
+          className="text-gray-800 underline hover:text-black"
+        >
+          Sign in
+        </button>
+      </p>
     </div>
   )
 }

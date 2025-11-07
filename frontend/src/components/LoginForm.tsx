@@ -9,9 +9,11 @@ import toast from "react-hot-toast";
 export const LoginForm = ({
   onClose,
   onForgot,
+  onSwitchToSignup,
 }: {
   onClose: () => void;
   onForgot: () => void;
+  onSwitchToSignup?: () => void;
 }) => {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -116,7 +118,17 @@ export const LoginForm = ({
           Login with Google
         </button>
       </form>
-      
+
+      {/* Footer */}
+      <p className="mt-4 text-center text-sm text-gray-500">
+        Don’t have an account?{" "}
+        <button
+          onClick={onSwitchToSignup}
+          className="text-gray-800 underline hover:text-black"
+        >
+          Sign up
+        </button>
+      </p>
     </div>
   );
 };
