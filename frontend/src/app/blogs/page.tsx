@@ -73,21 +73,16 @@ export default function MyBlogs() {
             Manage and view your blog posts here
           </p>
         </div>
-        <button
-          onClick={() => router.push("/write")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          + New Blog
-        </button>
+        
       </div>
 
       {/* Blog List */}
       <div className="max-w-6xl mx-auto">
-        {blogs.length === 0 ? (
+        {!blogs ? (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
             <p className="text-gray-500 text-lg">You haven’t written any blogs yet.</p>
             <button
-              onClick={() => router.push("/blogs/create")}
+              onClick={() => router.push("/write")}
               className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
             >
               Write Your First Blog
