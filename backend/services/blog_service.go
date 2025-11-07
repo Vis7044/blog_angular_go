@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/blog_go/models"
@@ -30,6 +31,12 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 	if tags == nil {
 		tags = []string{}
 	}
+	var tempTags []string
+	for _, tag := range tags {
+		if tag != "" {
+			tempTags = append(tempTags, strings.ToLower(strings.TrimSpace(tag)))
+		}
+	}
 	var blog = &models.Blog{
 		Id:         primitive.NewObjectID(),
 		UserId:     userId,
@@ -39,9 +46,9 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 		Likes:      []primitive.ObjectID{},
 		Comments:   []primitive.ObjectID{},
 		CoverPhoto: coverPhoto,
-		Tags:       tags,
-		CreatedAt:  primitive.DateTime(time.Now().Unix()),
-		UpdatedAt:  primitive.DateTime(time.Now().Unix()),
+		Tags:     tempTags,
+		CreatedAt: primitive.DateTime(time.Now().Unix()),
+		UpdatedAt: primitive.DateTime(time.Now().Unix()),
 	}
 	return blogservice.blog_repository.CreateBlog(ctx, blog)
 }
