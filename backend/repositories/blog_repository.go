@@ -20,7 +20,7 @@ func NewBlogRepository(db *mongo.Database) *BlogRepository {
 }
 
 func (blogRepository *BlogRepository) CreateBlog(ctx context.Context, blog *models.Blog) (string, error) {
-	_, err := blogRepository.blogCollection.InsertOne(ctx, blog) 
+	_, err := blogRepository.blogCollection.InsertOne(ctx, blog)
 	if err != nil {
 		return "", err
 	}
@@ -29,7 +29,7 @@ func (blogRepository *BlogRepository) CreateBlog(ctx context.Context, blog *mode
 
 func (blogRepository *BlogRepository) GetAllBlogs(ctx context.Context) ([]models.Blog, error) {
 	blogs := []models.Blog{}
-	cursor, err := blogRepository.blogCollection.Find(ctx, bson.D{});
+	cursor, err := blogRepository.blogCollection.Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +51,41 @@ func (blogRepository *BlogRepository) GetBlogsByDetails(ctx context.Context, blo
 	return blog, nil
 }
 
+func (blogrepository *BlogRepository) ToggleLikes(ctx context.Context, blogId primitive.ObjectID, userId primitive.ObjectID) (models.Blog, error) {
+	var blog models.Blog
 
+	filter1 := bson.M{"_id": blogId}
+	filter2 := bson.M{"_id": blogId, "likes": userId}
 
+	// Check if user has already liked this blog
+	err := blogrepository.blogCollection.FindOne(ctx, filter2).Decode(&blog)
+	if err == mongo.ErrNoDocuments {
+		// User hasn't liked yet → add to likes
+		_, err := blogrepository.blogCollection.UpdateOne(ctx, filter1, bson.M{
+			"$addToSet": bson.M{"likes": userId},
+		})
+		if err != nil {
+			return models.Blog{}, err
+		}
+	} else if err == nil {
+		// User already liked → remove from likes
+		_, err := blogrepository.blogCollection.UpdateOne(ctx, filter1, bson.M{
+			"$pull": bson.M{"likes": userId},
+		})
+		if err != nil {
+			return models.Blog{}, err
+		}
+	} else {
+		// Some other database error
+		return models.Blog{}, err
+	}
 
+	// Fetch and return the updated blog
+	err = blogrepository.blogCollection.FindOne(ctx, filter1).Decode(&blog)
+	if err != nil {
+		return models.Blog{}, err
+	}
+
+	return blog, nil
+
+}
