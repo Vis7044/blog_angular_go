@@ -14,10 +14,13 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 export const Sidebar = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  
 
   const navItems = [
     { href: "/", label: "Home", icon: House , disabled: false},
