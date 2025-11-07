@@ -10,6 +10,9 @@ interface User {
   id: string;
   email: string;
   name?: string;
+  username?: string;
+  profilePic?: string;
+  bio?:string;
 }
 
 // 2️⃣ Context type
