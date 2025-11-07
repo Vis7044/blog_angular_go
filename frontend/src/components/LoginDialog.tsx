@@ -13,10 +13,8 @@ export const LoginDialog = ({
   visible: boolean
   setVisible: (v: boolean) => void
 }) => {
-  const [isLogin, setIsLogin] = useState(true)
   const [step, setStep] = useState<'login' | 'signup' | 'forgot' | 'otp' | 'reset'>('login')
   const [resetEmail, setResetEmail] = useState('')
-
 
   if (!visible) return null
 
@@ -36,44 +34,44 @@ export const LoginDialog = ({
         </h2>
 
         <div className="flex flex-col justify-center items-center">
-          
+          {step === 'login' && (
+            <LoginForm
+              onClose={() => setVisible(false)}
+              onForgot={() => setStep('forgot')}
+              onSwitchToSignup={() => setStep('signup')}
+            />
+          )}
 
-          {step === 'login' && <LoginForm onClose={() => setVisible(false)} onForgot={() => setStep('forgot')} />}
-          {step === 'signup' && <SignupForm onClose={() => setVisible(false)} onSwitchToLogin={() => setStep('login')} />}
+          {step === 'signup' && (
+            <SignupForm
+              onClose={() => setVisible(false)}
+              onSwitchToLogin={() => setStep('login')}
+            />
+          )}
+
           {step === 'forgot' && (
-            <ForgotPasswordForm onOtpSent={(email) => { setResetEmail(email); setStep('otp'); }} />
+            <ForgotPasswordForm
+            onOtpSent={(email) => {
+              setResetEmail(email)
+              setStep('otp')
+            }}
+            onBack={() => setStep('login')}
+          />
           )}
+
           {step === 'otp' && (
-            <VerifyOtpForm email={resetEmail} onVerified={() => setStep('reset')} />
+            <VerifyOtpForm
+              email={resetEmail}
+              onVerified={() => setStep('reset')}
+            />
           )}
+
           {step === 'reset' && (
-            <ResetPasswordForm email={resetEmail} onSuccess={() => setStep('login')} />
+            <ResetPasswordForm
+              email={resetEmail}
+              onSuccess={() => setStep('login')}
+            />
           )}
-
-
-          <p className="mt-4 text-center text-sm text-gray-500">
-            {isLogin ? (
-              <>
-                Don’t have an account?{' '}
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className="text-gray-800 underline hover:text-black"
-                >
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className="text-gray-800 underline hover:text-black"
-                >
-                  Sign in
-                </button>
-              </>
-            )}
-          </p>
         </div>
       </div>
     </div>
