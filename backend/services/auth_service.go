@@ -2,11 +2,12 @@ package services
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"math/big"
 	"strconv"
 	"time"
-
 	"github.com/blog_go/config"
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
@@ -182,3 +183,81 @@ func (as *AuthService) GetAllBlogsByUserId(ctx context.Context, id string) ([]mo
 	}
 	return blogs, nil
 }
+
+func generateOTP() string {
+	max := big.NewInt(1000000) 
+	n, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		return "000000"
+	}
+	return fmt.Sprintf("%06d", n.Int64())
+}
+
+func (as *AuthService) GenerateAndSendOTP(ctx context.Context, email string) error {
+	user, err := as.repo.FindByEmail(ctx, email)
+	if err != nil {
+		return errors.New("user with given email does not exist")
+	}
+
+	otp := generateOTP()
+	expiry := time.Now().Add(10 * time.Minute)
+
+	// Store OTP in DB
+	err = as.repo.StoreResetOTP(ctx, user.Id, otp, expiry)
+	if err != nil {
+		return errors.New("failed to store OTP: " + err.Error())
+	}
+
+	// Send email via Brevo
+	brevoService := NewBrevoService("Burogo Support", config.Cfg.BrevoEmail)
+	err = brevoService.SendTemplateEmail(
+		user.Email,
+		user.Name,
+		6, 
+		map[string]interface{}{
+			"name": user.Name,
+			"otp":  otp,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to send OTP email: %v", err)
+	}
+
+	return nil
+}
+
+func (as *AuthService) HandleVerifyOTP(ctx context.Context,email, otp string) error {
+	// Validate inputs
+	if email == "" || otp == ""  {
+		return errors.New("email, otp are required")
+	}
+
+	// Verify OTP (repository handles lookup and expiry)
+	user, err := as.repo.VerifyResetOTP(ctx, email, otp)
+	if err != nil {
+		return err
+	}
+	// Clear OTP fields
+	if err := as.repo.ClearResetOTP(ctx, user.Id); err != nil {
+		fmt.Println("Warning: failed to clear OTP:", err)
+	}
+
+	return nil
+}
+
+func (as *AuthService) ResetPassword(ctx context.Context, newPassword string, email string) (string, error) {
+	if len(newPassword) < 6 {
+		return "", errors.New("password must be at least 6 characters")
+	}
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return "", errors.New("failed to hash password")
+	}
+	userEmail, err := as.repo.ResetPasswordByEmail(ctx, email, hashedPassword)
+	if err != nil {
+		return "", err
+	}
+
+	return userEmail, nil
+}
+

@@ -117,3 +117,61 @@ func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId primitive
 	return blogs, nil
 
 }
+
+// StoreResetOTP stores the generated OTP and expiry for a user
+func (r *AuthRepository) StoreResetOTP(ctx context.Context, userId primitive.ObjectID, otp string, expiry time.Time) error {
+	update := bson.M{
+		"$set": bson.M{
+			"resetOTP":       otp,
+			"resetOTPExpiry": expiry,
+		},
+	}
+	_, err := r.user_collection.UpdateByID(ctx, userId, update)
+	if err != nil {
+		return fmt.Errorf("failed to store reset OTP: %v", err)
+	}
+	return nil
+}
+
+// VerifyResetOTP checks if OTP is valid and not expired
+func (r *AuthRepository) VerifyResetOTP(ctx context.Context, email, otp string) (*models.User, error) {
+	var user models.User
+	filter := bson.M{
+		"email":          email,
+		"resetOTP":       otp,
+		"resetOTPExpiry": bson.M{"$gt": time.Now()},
+	}
+	err := r.user_collection.FindOne(ctx, filter).Decode(&user)
+	if err != nil {
+		return nil, errors.New("invalid or expired OTP")
+	}
+	return &user, nil
+}
+
+// ClearResetOTP clears the OTP after successful verification
+func (r *AuthRepository) ClearResetOTP(ctx context.Context, userId primitive.ObjectID) error {
+	update := bson.M{
+		"$unset": bson.M{
+			"resetOTP":       "",
+			"resetOTPExpiry": "",
+		},
+	}
+	_, err := r.user_collection.UpdateByID(ctx, userId, update)
+	return err
+}
+
+func (r *AuthRepository) ResetPasswordByEmail(ctx context.Context, email, hashedPassword string) (string, error) {
+	filter := bson.M{"email": email}
+	update := bson.M{
+		"$set": bson.M{
+			"password": hashedPassword,
+		},
+	}
+
+	_, err := r.user_collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return "", fmt.Errorf("failed to reset password: %v", err)
+	}
+
+	return email, nil
+}
