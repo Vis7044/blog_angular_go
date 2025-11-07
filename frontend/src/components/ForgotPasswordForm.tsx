@@ -23,12 +23,12 @@ export const ForgotPasswordForm = ({
       return
     }
 
-
+    console.log("email : " + email)
     setLoading(true)
     try {
       // ✅ Call your API to send OTP
-      const response = { data: { success: true } }
-      if (response.data.success) {
+      const response = await authService.forgotPassword(email)
+      if (response?.success) {
         toast.success('OTP sent to your email')
         onOtpSent(email)
       } else {
