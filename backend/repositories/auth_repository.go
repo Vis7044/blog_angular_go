@@ -88,6 +88,20 @@ func (ar *AuthRepository) UpdateUserBio(ctx context.Context, id primitive.Object
 
 }
 
+// GetTotalUsers counts total number of users in the "User" collection.
+func (ar *AuthRepository) GetTotalUsers(ctx context.Context) (int, error) {
+	// Using context with timeout for safety
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	count, err := ar.user_collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
+}
+
 func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId primitive.ObjectID) ([]models.Blog, error) {
 	var blogs []models.Blog
 	filter := bson.M{"userId": userId}
@@ -101,6 +115,7 @@ func (ar *AuthRepository) GetBlogsByUserId(ctx context.Context, userId primitive
 	}
 	fmt.Println("Blogs fetched for user:", blogs, userId)
 	return blogs, nil
+
 }
 
 // StoreResetOTP stores the generated OTP and expiry for a user

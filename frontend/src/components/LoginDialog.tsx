@@ -2,6 +2,9 @@
 import { useState } from 'react'
 import { LoginForm } from './LoginForm'
 import { SignupForm } from './SignupForm'
+import { ForgotPasswordForm } from './ForgotPasswordForm'
+import { VerifyOtpForm } from './VerifyOtpForm'
+import { ResetPasswordForm } from './ResetPasswordForm'
 
 export const LoginDialog = ({
   visible,
@@ -10,13 +13,14 @@ export const LoginDialog = ({
   visible: boolean
   setVisible: (v: boolean) => void
 }) => {
-  const [isLogin, setIsLogin] = useState(true)
+  const [step, setStep] = useState<'login' | 'signup' | 'forgot' | 'otp' | 'reset'>('login')
+  const [resetEmail, setResetEmail] = useState('')
 
   if (!visible) return null
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl p-6 relative shadow-lg">
+      <div className="bg-white rounded-2xl p-6 relative shadow-lg w-[25rem] max-w-full">
         {/* Close button */}
         <button
           onClick={() => setVisible(false)}
@@ -29,37 +33,45 @@ export const LoginDialog = ({
           Let&apos;s Get Started
         </h2>
 
-        <div className="flex flex-col transition-all duration-300 justify-center items-center">
-          {/* ✅ Pass setVisible to both forms */}
-          {isLogin ? (
-            <LoginForm onClose={() => setVisible(false)} />
-          ) : (
-            <SignupForm onClose={() => setVisible(false)} />
+        <div className="flex flex-col justify-center items-center">
+          {step === 'login' && (
+            <LoginForm
+              onClose={() => setVisible(false)}
+              onForgot={() => setStep('forgot')}
+              onSwitchToSignup={() => setStep('signup')}
+            />
           )}
 
-          <p className="mt-4 text-sm">
-            {isLogin ? (
-              <>
-                Don&apos;t have an account?{' '}
-                <button
-                  onClick={() => setIsLogin(false)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Sign Up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button
-                  onClick={() => setIsLogin(true)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Sign In
-                </button>
-              </>
-            )}
-          </p>
+          {step === 'signup' && (
+            <SignupForm
+              onClose={() => setVisible(false)}
+              onSwitchToLogin={() => setStep('login')}
+            />
+          )}
+
+          {step === 'forgot' && (
+            <ForgotPasswordForm
+            onOtpSent={(email) => {
+              setResetEmail(email)
+              setStep('otp')
+            }}
+            onBack={() => setStep('login')}
+          />
+          )}
+
+          {step === 'otp' && (
+            <VerifyOtpForm
+              email={resetEmail}
+              onVerified={() => setStep('reset')}
+            />
+          )}
+
+          {step === 'reset' && (
+            <ResetPasswordForm
+              email={resetEmail}
+              onSuccess={() => setStep('login')}
+            />
+          )}
         </div>
       </div>
     </div>
