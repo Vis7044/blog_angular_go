@@ -29,9 +29,29 @@ export default function MyBlogs() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center">
-        <OverlaySpinner />
+      <div className="h-auto rounded-xl bg-gray-50 py-10 px-6">
+      <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">My Blogs</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Manage and view your blog posts here
+          </p>
+        </div>
+        <button
+          disabled
+          className="bg-gray-300 text-white px-4 py-2 rounded-lg cursor-not-allowed"
+        >
+          + New Blog
+        </button>
       </div>
+
+      {/* Skeleton Loader Grid */}
+      <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <OverlaySpinner key={idx} />
+        ))}
+      </div>
+    </div>
     );
   }
 
