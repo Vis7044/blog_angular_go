@@ -17,9 +17,11 @@ export const VerifyOtpForm = ({
     e.preventDefault()
     if (!otp.trim()) return toast.error('Enter the OTP.')
 
+      console.log("opt : " + otp)
+
     setLoading(true)
     try {
-      //await authService.verifyOtp({ email, otp })
+      await authService.verifyOTP(email, otp)
       toast.success('OTP verified! You can now reset your password.')
       onVerified()
     } catch (error) {

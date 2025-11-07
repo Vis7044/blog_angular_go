@@ -19,6 +19,24 @@ class AuthService {
   login = async (credentials: LoginCredentials) => apiClient.post(`${this.baseRoute}/login`, credentials);
   logout = async () => apiClient.post(`${this.baseRoute}/logout`);
   fetchCurrentUser = async () => apiClient.get(`${this.baseRoute}/logedinuser`);
+
+
+  forgotPassword = async (email: string) => {
+    const res = await apiClient.post(`${this.baseRoute}/forgot-password`,  {email} );
+    console.log(res);
+    return res.data;
+  }
+  verifyOTP = async (email: string, otp: string) => {
+    const res = await apiClient.post(`${this.baseRoute}/verify-otp`, { email, otp });
+    return res.data;
+  }
+  resetPassword = async (email: string, newPassword: string)=> {
+    const res = await apiClient.post(`${this.baseRoute}/reset-password`, {
+      email,
+      new_password: newPassword,
+    });
+    return res.data;
+  }
 }
 
 export const authService = new AuthService();

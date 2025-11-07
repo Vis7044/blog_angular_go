@@ -23,7 +23,7 @@ export const ResetPasswordForm = ({
 
     setLoading(true)
     try {
-      //await authService.resetPassword({ email, password })
+      await authService.resetPassword( email, password )
       toast.success('Password reset successful! Please login again.')
       onSuccess()
     } catch (error) {
