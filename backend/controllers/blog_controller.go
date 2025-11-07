@@ -68,6 +68,22 @@ func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
 	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
 }
 
+func (bc *BlogController) SearchBlogsController(ctx *gin.Context) {
+	query := ctx.Query("q")
+	if query == "" {
+		ctx.JSON(400, utils.Response[string]{Success: false, Data: "Search query required"})
+		return
+	}
+
+	blogs, err := bc.blogService.SearchBlogs(ctx.Request.Context(), query)
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to search blogs: " + err.Error()})
+		return
+	}
+
+	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}
+
 func (blogController *BlogController) GetBlogsByDetailsController(ctx *gin.Context) {
 	blogId := ctx.Param("id")
 	blog, err := blogController.blogService.GetBlogsByDetails(ctx.Request.Context(), blogId)

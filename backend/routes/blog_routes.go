@@ -12,5 +12,6 @@ func BlogRoute(r *gin.Engine, blogController *controllers.BlogController) {
 		blog.GET("", blogController.GetAllBlogsController)
 		blog.POST("", middleware.AuthMiddleware(), blogController.CreateBlogController)
 		blog.GET("/:id", blogController.GetBlogsByDetailsController)	
+		blog.GET("/search", blogController.SearchBlogsController)
 	}
 }

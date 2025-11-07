@@ -2,20 +2,44 @@ package repositories
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/blog_go/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type BlogRepository struct {
 	blogCollection *mongo.Collection
 }
 
+
 func NewBlogRepository(db *mongo.Database) *BlogRepository {
+	collection := db.Collection("blogs")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	model := mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "title", Value: "text"},
+			{Key: "content", Value: "text"},
+			{Key: "tags", Value: "text"},
+		},
+	}
+
+	_, err := collection.Indexes().CreateOne(ctx, model)
+	if err != nil {
+		fmt.Println("Failed to create text index:", err)
+	} else {
+		fmt.Println("Text index for blogs ensured successfully")
+	}
+
 	return &BlogRepository{
-		blogCollection: db.Collection("blogs"),
+		blogCollection: collection,
 	}
 }
 
@@ -40,6 +64,29 @@ func (blogRepository *BlogRepository) GetAllBlogs(ctx context.Context) ([]models
 	}
 	return blogs, nil
 }
+
+func (r *BlogRepository) SearchBlogs(ctx context.Context, searchQuery string) ([]models.Blog, error) {
+	filter := bson.M{
+		"$text": bson.M{"$search": searchQuery},
+	}
+	opts := options.Find().SetProjection(bson.M{
+		"score": bson.M{"$meta": "textScore"},
+	})
+	opts.SetSort(bson.M{"score": bson.M{"$meta": "textScore"}})
+
+	cursor, err := r.blogCollection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var blogs []models.Blog
+	if err := cursor.All(ctx, &blogs); err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}
+
 
 func (blogRepository *BlogRepository) GetBlogsByDetails(ctx context.Context, blogId primitive.ObjectID) (models.Blog, error) {
 	blog := models.Blog{}
