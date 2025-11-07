@@ -17,5 +17,8 @@ func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
 		user.PATCH("/updatebio/:id", authController.UpdateProfileBio)
 		user.POST("refresh-token", authController.RefreshToken)
 		user.GET("/allblogs", middleware.AuthMiddleware(),authController.GetAllBlogsOfUser)
+		user.POST("/forgot-password", authController.ForgotPassword)
+		user.POST("/verify-otp", authController.VerifyOTP)
+		user.POST("/reset-password", authController.ResetPassword)
 	}
 }
