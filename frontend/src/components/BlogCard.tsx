@@ -3,6 +3,7 @@
 import React from "react";
 import DOMPurify from "dompurify";
 import { MessageSquare, Heart, Tag } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export interface Blog {
   _id: string;
@@ -21,6 +22,8 @@ interface BlogCardProps {
 }
 
 export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
+
+  const router = useRouter()
   const previewText = DOMPurify.sanitize(blog.content)
     .replace(/<[^>]+>/g, "") // remove HTML tags
     .slice(0, 120) + (blog.content.length > 120 ? "..." : "");
@@ -91,6 +94,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
           >
             {statusLabel}
           </span>
+        
         </div>
       </div>
     </div>

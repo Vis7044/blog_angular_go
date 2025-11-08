@@ -9,7 +9,8 @@ export interface Blog {
   comments: Comment[];         // Array of comments (define Comment interface below)
   status: number;              // 1 = published, 0 = draft (or however your logic defines)
   tags: string[];              // Tags related to the post
-  createdAt?: string;         
+  createdAt?: string;
+  coverPhoto?:string;         
   updatedAt?: string;          
 }
 
@@ -51,7 +52,6 @@ class BlogService {
 
   getBlogs = async (): Promise<Blog[]> => {
     const response = await apiClient.get(`${this.baseUrl}`);
-    console.log("Fetched blogs:", response.data.data);
     return response.data.data;
   }
 
@@ -67,7 +67,6 @@ class BlogService {
 
   getBlogById = async (blogId: string): Promise<Blog> =>{
     const response = await apiClient.get(`${this.baseUrl}/${blogId}`);
-    console.log("Fetched blog with ID : ", response.data.data);
     return response.data.data;
   }
 
