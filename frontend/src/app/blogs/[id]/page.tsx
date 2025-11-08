@@ -108,9 +108,7 @@ export default function BlogDetail() {
           <h1 className="text-3xl font-bold text-center mt-4 mb-6">
             {blog.title}
           </h1>
-        )}
-          
-        <button className="cursor-pointer p-2 text-blue-400" onClick={() => router.push(`/editblog/${blog._id}`)}>Edit</button> 
+        )} 
         {blog && (
           <div
             key={blog._id}
