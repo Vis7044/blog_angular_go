@@ -36,17 +36,17 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
       className="flex flex-col sm:flex-row cursor-pointer rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all duration-300 overflow-hidden"
     >
       {/* Cover Photo */}
-      <div className="sm:w-2/6 w-full h-48 sm:h-auto relative overflow-hidden">
+      <div className="sm:w-2/6 sm:h-auto overflow-hidden">
         {blog.coverPhoto ? (
-          <div className="w-full contain-size h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+          <div className="w-full contain-size h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
           <img
             src={blog.coverPhoto}
             alt={blog.title}
-            className="opacity-80 w-full object-cover transition-transform duration-300 hover:scale-105"
+            className="opacity-80 w-full object-fill transition-transform duration-300 hover:scale-105"
           />
           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br  from-gray-300 to-gray-400 flex items-center justify-center">
             <img
               src="/loginArt.jpg"
               alt="default"
@@ -57,7 +57,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
       </div>
 
       {/* Blog Info */}
-      <div className="sm:w-3/5 w-full p-5 flex flex-col justify-between">
+      <div className="sm:w-full w-full p-2 flex flex-col justify-between">
         <div>
           <h2 className="text-lg font-semibold text-gray-800 line-clamp-2">
             {blog.title}
