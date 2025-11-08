@@ -136,3 +136,21 @@ func (blogrepository *BlogRepository) ToggleLikes(ctx context.Context, blogId pr
 	return blog, nil
 
 }
+
+
+func (blogrepository *BlogRepository) UpdateExistingBlog(ctx context.Context, id primitive.ObjectID, title, content string, status models.Status, coverPhoto string, tempTags []string) (string, error) {
+	fmt.Println("Updating blog with ID:", id,title,content,status,coverPhoto,tempTags)
+	filter := bson.M{"_id": id}
+	update := bson.M{
+		"$set": bson.M{
+			"title":      title,
+			"content":    content,
+			"status":     status,
+			"coverPhoto": coverPhoto,
+			"tags":      tempTags,
+			"updatedAt":  primitive.DateTime(time.Now().Unix()),
+		},
+	}
+	_, err := blogrepository.blogCollection.UpdateOne(ctx, filter, update)
+	return "Blog updated successfully", err	
+}

@@ -11,6 +11,7 @@ const EditBlog = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [loading, setLoading] = useState(true)
+  const [blogid, setBlogId] = useState<string>("")
 
   const { id } = useParams();
   useEffect(() => {
@@ -19,6 +20,7 @@ const EditBlog = () => {
       setContent(blog?.content);
       setCoverPhoto(blog.coverPhoto || "");
       setTags(blog.tags);
+      setBlogId(blog._id || "");
     }).catch((err) => console.error(err)).finally(() => setLoading(false));
   }, []);
   if(loading){
@@ -26,6 +28,7 @@ const EditBlog = () => {
   }
   return (
     <BlogEditor
+      id={blogid}
       InitialcoverPhoto={coverPhoto}
       Intialtags={tags}
       IntialTitle={title}

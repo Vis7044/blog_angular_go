@@ -107,7 +107,6 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
   };
 
   const handleRemove = async () => {
-    // Only delete if a new image was uploaded
     if (photoId) {
       try {
         await blogService.deleteImage(photoId);
