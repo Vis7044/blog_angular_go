@@ -56,15 +56,15 @@ export const SignupForm = ({
   }
 
   return (
-    <div className="bg-white w-[23rem] rounded-2xl shadow-sm p-6 border border-gray-200">
+    <div className="bg-white w-[23rem] rounded-2xl p-4">
       {/* Header */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-2">
         <h2 className="text-xl font-semibold text-gray-900">Create an account</h2>
         <p className="text-sm text-gray-500">Enter your details below to sign up</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Your Name

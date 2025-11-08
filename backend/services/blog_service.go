@@ -77,3 +77,7 @@ func (blogservice *BlogService) UpdateLike(ctx context.Context, id string, uId s
 
 	return blogservice.blog_repository.ToggleLikes(ctx, blogId, userId)
 }
+
+func (bs *BlogService) SearchBlogs(ctx context.Context, query string) ([]models.Blog, error) {
+	return bs.blog_repository.SearchBlogs(ctx, query)
+}

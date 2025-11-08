@@ -43,7 +43,7 @@ export const LoginForm = ({
   };
 
   return (
-    <div className="bg-white w-full max-w-sm mx-auto rounded-2xl shadow-md p-8 space-y-6 border border-gray-100">
+    <div className="bg-white w-full max-w-sm mx-auto rounded-2xl p-4 space-y-3">
       {/* Header */}
       <div className="text-center">
         <h2 className="text-xl font-semibold text-gray-900">Login to your account</h2>
