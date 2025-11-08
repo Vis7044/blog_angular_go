@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Blog, blogService } from "@/services/blogService";
@@ -15,6 +15,7 @@ export default function BlogDetail() {
   const [animate, setAnimate] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<string[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -109,8 +110,7 @@ export default function BlogDetail() {
           </h1>
         )}
           
-        
-
+        <button className="cursor-pointer p-2 text-blue-400" onClick={() => router.push(`/editblog/${blog._id}`)}>Edit</button> 
         {blog && (
           <div
             key={blog._id}

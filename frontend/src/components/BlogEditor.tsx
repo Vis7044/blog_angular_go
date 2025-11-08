@@ -1,22 +1,22 @@
 "use client";
-import { useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { blogService, Status } from "@/services/blogService";
 import "react-quill-new/dist/quill.snow.css";
 import "@/styles/editor.css";
-import { PreviewBlog } from "./PreviewBlog";
 import { Edit3, Play, Upload } from "lucide-react";
-import SaveBlogModal from "./SaveBlogModal";
 import Quill from "react-quill-new";
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+import SaveBlogModal from "@/components/SaveBlogModal";
+import { PreviewBlog } from "@/components/PreviewBlog";
 
-export default function BlogEditor() {
+export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, IntitialContent}: {Intialtags: string[], InitialcoverPhoto: string, IntialTitle: string, IntitialContent: string }) {
   const quillRef = useRef<any>(null);
   const previousImagesRef = useRef<Set<string>>(new Set());
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(IntialTitle);
+  const [content, setContent] = useState(IntitialContent);
   const [previewMode, setPreviewMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [tags] = useState<string[]>(Intialtags)
+  const [coverPhoto] = useState<string>(InitialcoverPhoto)
 
   // Image handler
   const imageHandler = async () => {
@@ -180,6 +180,8 @@ export default function BlogEditor() {
         onOk={() => setShowModal(false)}
         onCancel={() => setShowModal(false)}
         title={title}
+        Edittags={tags}
+        EditcoverPhoto={coverPhoto}
         content={content}
         saveBlog={handleSave}
       />

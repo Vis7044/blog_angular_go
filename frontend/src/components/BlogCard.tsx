@@ -3,6 +3,7 @@
 import React from "react";
 import DOMPurify from "dompurify";
 import { MessageSquare, Heart, Tag } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export interface Blog {
   _id: string;
@@ -107,6 +108,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
           >
             {statusLabel}
           </span>
+        
         </div>
       </div>
     </div>
