@@ -23,12 +23,12 @@ export const ForgotPasswordForm = ({
       return
     }
 
-
+    console.log("email : " + email)
     setLoading(true)
     try {
       // ✅ Call your API to send OTP
-      const response = { data: { success: true } }
-      if (response.data.success) {
+      const response = await authService.forgotPassword(email)
+      if (response?.success) {
         toast.success('OTP sent to your email')
         onOtpSent(email)
       } else {
@@ -43,7 +43,7 @@ export const ForgotPasswordForm = ({
   }
 
   return (
-    <div className="bg-white w-[23rem] rounded-2xl shadow-sm p-6 border border-gray-200">
+    <div className="bg-white w-[23rem] rounded-2xl py-6 px-3">
       {/* Header */}
       <div className="text-center mb-4">
         <h2 className="text-xl font-semibold text-gray-900">Forgot Password?</h2>
@@ -55,9 +55,6 @@ export const ForgotPasswordForm = ({
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
           <input
             type="email"
             placeholder="you@example.com"

@@ -56,5 +56,5 @@ func main() {
 	routes.CommentRoute(r, commentController)
 
 	// Run server
-	r.Run("127.0.0.1:8080")
+	r.Run(":8080")
 }

@@ -2,15 +2,7 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-/*temp:Think of it like holding a friend’s phone number in your contacts list.
-
-The number itself doesn’t “know” who it belongs to.
-
-Your brain (application logic) knows that “this number belongs to John”.
-
-Similarly, your Go code knows that “these ObjectIDs belong to blogs.”*/
-
-type Status int
+type Status int 
 
 const (
 	Draft Status = iota

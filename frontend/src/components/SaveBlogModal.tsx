@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Upload, Select, Form } from "antd";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 import { UploadOutlined } from "@ant-design/icons";
 import { blogService, Status } from "@/services/blogService";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 interface SaveBlogModalProps {
   open: boolean;
@@ -12,6 +12,8 @@ interface SaveBlogModalProps {
   onCancel: () => void;
   title: string;
   content: string;
+  Edittags: string[];
+  EditcoverPhoto: string;
   saveBlog: (
     title: string,
     content: string,
@@ -36,12 +38,35 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
   content,
   onCancel,
   saveBlog,
+  Edittags,
+  EditcoverPhoto,
 }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [coverPhoto, setCoverPhoto] = useState("");
+  const [coverPhoto, setCoverPhoto] = useState(EditcoverPhoto || "");
   const [photoId, setPhotoId] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(Edittags || []);
   const [loading, setLoading] = useState(false);
+
+  console.log(tags,coverPhoto)
+  useEffect(() => {
+    if (open) {
+      setTags(Edittags || []);
+      setCoverPhoto(EditcoverPhoto || "");
+
+      if (EditcoverPhoto) {
+        setFileList([
+          {
+            uid: "-1",
+            name: "cover.jpg",
+            status: "done",
+            url: EditcoverPhoto,
+          },
+        ]);
+      } else {
+        setFileList([]);
+      }
+    }
+  }, [open, EditcoverPhoto, Edittags]);
 
   const beforeUpload: UploadProps["beforeUpload"] = (file) => {
     const isImage = file.type.startsWith("image/");
@@ -57,7 +82,6 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
 
   const handleUpload = async (options: any) => {
     const { file, onSuccess, onError } = options;
-
     try {
       const data = await blogService.uploadImage(file);
       const { secureUrl, publicId } = data;
@@ -74,7 +98,6 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
       ]);
 
       toast.success("Image uploaded successfully.");
-
       onSuccess?.(data);
     } catch (err: any) {
       console.error(err);
@@ -84,26 +107,23 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
   };
 
   const handleRemove = async () => {
-    if (!photoId) return;
-    try {
-      await blogService.deleteImage(photoId);
-      setCoverPhoto("");
-      setPhotoId("");
-      setFileList([]);
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
+    // Only delete if a new image was uploaded
+    if (photoId) {
+      try {
+        await blogService.deleteImage(photoId);
+      } catch (err) {
+        console.error(err);
+      }
     }
+    setCoverPhoto("");
+    setPhotoId("");
+    setFileList([]);
+    return true;
   };
 
   const handleOk = async () => {
     if (!coverPhoto) {
-      toast.error("Please upload a cover photo.");
-      return;
-    }
-    if (tags.length === 0) {
-      toast.error("Please select at least one tag.");
+      toast.error("Please upload a cover photo before saving.");
       return;
     }
 
@@ -112,7 +132,6 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
       await saveBlog(title, content, Status.Published, coverPhoto, tags);
       toast.success("Blog saved successfully!");
       onOk();
-      resetForm();
     } catch (error) {
       console.error(error);
       toast.error("Failed to save the blog.");
@@ -121,16 +140,7 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
     }
   };
 
-  const resetForm = () => {
-    setFileList([]);
-    setTags([]);
-    setCoverPhoto("");
-    setPhotoId("");
-  };
-
   const handleCancel = () => {
-    handleRemove();
-    resetForm();
     onCancel();
   };
 

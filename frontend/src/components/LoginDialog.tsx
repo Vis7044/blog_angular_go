@@ -20,7 +20,7 @@ export const LoginDialog = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl p-6 relative shadow-lg w-[25rem] max-w-full">
+      <div className="bg-white rounded-2xl py-6 relative shadow-lg w-[25rem] max-w-full">
         {/* Close button */}
         <button
           onClick={() => setVisible(false)}
@@ -29,8 +29,8 @@ export const LoginDialog = ({
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold text-center mb-4">
-          Let&apos;s Get Started
+        <h2 className="text-xl flex items-center justify-center font-semibold text-center mb-2">
+          <img src="/logo.svg" className="h-10" />
         </h2>
 
         <div className="flex flex-col justify-center items-center">
