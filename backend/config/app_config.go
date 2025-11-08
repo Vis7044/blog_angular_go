@@ -13,6 +13,8 @@ type AppConfig struct {
 	CloudinaryApiKey string
 	CloudinaryApiSecret string
 	RefreshToken_secret string
+	BrevoApiKey string
+	BrevoEmail string
 }
 
 var loaded = false
@@ -33,6 +35,8 @@ func LoadConfig() {
 		CloudinaryApiKey: os.Getenv("CLOUDINARY_API_KEY"),
 		CloudinaryApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
 		RefreshToken_secret: os.Getenv("REFRESH_TOKEN_SECRET"),
+		BrevoApiKey: os.Getenv("BREVO_API_KEY"),
+		BrevoEmail: os.Getenv("BREVO_EMAIL"),
 	}
 
 
@@ -44,6 +48,12 @@ func LoadConfig() {
 	}
 	if Cfg.CloudinaryCloudName == "" || Cfg.CloudinaryApiKey == "" || Cfg.CloudinaryApiSecret == "" {
 		log.Fatal("Cloudinary configuration is not set properly")
+	}
+	if Cfg.BrevoApiKey == "" {
+		log.Fatal("BREVO_API_KEY is not set")
+	}
+	if Cfg.BrevoEmail == "" {
+		log.Fatal("BREVO_EMAIL is not set")
 	}
 	loaded = true
 }

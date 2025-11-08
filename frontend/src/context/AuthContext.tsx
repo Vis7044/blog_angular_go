@@ -1,66 +1,72 @@
-'use client';
-// src/context/AuthContext.tsx
+"use client";
+
 import { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import { AxiosError } from "axios";
-import { authService } from "@/services/authService";
+import apiClient from "@/utils/axiosInstance";
 import OverlaySpinner from "@/components/OverlaySpinner";
 
+// 1️⃣ User interface
 interface User {
   id: string;
   email: string;
   name?: string;
+  username?: string;
+  profilePic?: string;
+  bio?:string;
 }
 
+// 2️⃣ Context type
 interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
 }
 
+// 3️⃣ Create context
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// 4️⃣ AuthProvider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const logout = async () => {
-    try {
-      await authService.logout();
-    } catch (err) {
-      console.warn("Logout request failed:", err);
-    } finally {
-      localStorage.removeItem("authToken");
-      setUser(null);
-      window.location.href = "/";
-    }
-  };
-
+  // 🔹 Fetch current user (called on mount)
   const fetchUser = async () => {
     try {
-      const res = await authService.fetchCurrentUser();
+      const res = await apiClient.get("/auth/logedinuser");
       setUser(res.data.data);
     } catch (err) {
       const axiosError = err as AxiosError;
-      if (axiosError.response?.status === 401) logout();
-      else setUser(null);
+      if (axiosError.response?.status === 401) {
+        setUser(null);
+      } else {
+        console.error("Error fetching user:", err);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) fetchUser();
-    else {
+  // 🔹 Logout user
+  const logout = async () => {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    } finally {
       setUser(null);
-      setLoading(false);
     }
+  };
+
+  // 🔹 On mount
+  useEffect(() => {
+    fetchUser();
   }, []);
 
   if (loading) {
-    return <OverlaySpinner/>;
+    return <OverlaySpinner />;
   }
 
   return (
@@ -70,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// 5️⃣ Hook for usage
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");

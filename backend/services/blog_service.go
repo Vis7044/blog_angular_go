@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/blog_go/models"
@@ -20,7 +21,7 @@ func NewBlogService(r *repositories.BlogRepository) *BlogService {
 	}
 }
 
-func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, tags []string) (string, error) {
+func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, coverPhoto string, tags []string) (string, error) {
 	if title == "" {
 		return "", errors.New("title is required")
 	}
@@ -30,15 +31,22 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 	if tags == nil {
 		tags = []string{}
 	}
+	var tempTags []string
+	for _, tag := range tags {
+		if tag != "" {
+			tempTags = append(tempTags, strings.ToLower(strings.TrimSpace(tag)))
+		}
+	}
 	var blog = &models.Blog{
-		Id:       primitive.NewObjectID(),
-		UserId:   userId,
-		Title:    title,
-		Content:  content,
-		Status:   status,
-		Likes:    []primitive.ObjectID{},
-		Comments: []primitive.ObjectID{},
-		Tags:     tags,
+		Id:         primitive.NewObjectID(),
+		UserId:     userId,
+		Title:      title,
+		Content:    content,
+		Status:     status,
+		Likes:      []primitive.ObjectID{},
+		Comments:   []primitive.ObjectID{},
+		CoverPhoto: coverPhoto,
+		Tags:     tempTags,
 		CreatedAt: primitive.DateTime(time.Now().Unix()),
 		UpdatedAt: primitive.DateTime(time.Now().Unix()),
 	}
@@ -47,4 +55,29 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 
 func (blogservice *BlogService) GetAllBlogs(ctx context.Context) ([]models.Blog, error) {
 	return blogservice.blog_repository.GetAllBlogs(ctx)
+}
+
+func (blogservice *BlogService) GetBlogsByDetails(ctx context.Context, id string) (models.Blog, error) {
+	blogId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return models.Blog{}, errors.New("invalid blog id")
+	}
+	return blogservice.blog_repository.GetBlogsByDetails(ctx, blogId)
+}
+
+func (blogservice *BlogService) UpdateLike(ctx context.Context, id string, uId string) (models.Blog, error) {
+	blogId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return models.Blog{}, errors.New("Like is not updated")
+	}
+	userId, err := primitive.ObjectIDFromHex(uId)
+	if err != nil {
+		return models.Blog{}, errors.New("Like is not updated")
+	}
+
+	return blogservice.blog_repository.ToggleLikes(ctx, blogId, userId)
+}
+
+func (bs *BlogService) SearchBlogs(ctx context.Context, query string) ([]models.Blog, error) {
+	return bs.blog_repository.SearchBlogs(ctx, query)
 }

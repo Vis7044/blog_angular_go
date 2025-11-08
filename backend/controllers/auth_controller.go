@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/blog_go/models"
 	"github.com/blog_go/services"
 	"github.com/blog_go/utils"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type AuthController struct {
@@ -30,7 +30,7 @@ func (ac *AuthController) RegisterController(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, utils.Response[string]{Success: false, Data: result})
+	c.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: result})
 }
 
 func (ac *AuthController) Login(ctx *gin.Context) {
@@ -38,32 +38,44 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
+
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
-	}
-	if input.Email == "" || input.Password == "" {
-		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Please provice email or password"})
 		return
 	}
+
+	if input.Email == "" || input.Password == "" {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Please provide email or password"})
+		return
+	}
+
 	access_token, refresh_token, err := ac.service.Login(ctx, input.Email, input.Password)
-	// Set refresh token in HttpOnly cookie
-    ctx.SetCookie(
-        "refreshToken",
-        refresh_token,
-        7*24*60*60, // 7 days in seconds
-        "/",
-        "",
-        false,                 // Secure: only over HTTPS
-        true,                 // HttpOnly
-    )
-	ctx.Header("Set-Cookie", ctx.Writer.Header().Get("Set-Cookie")+"; SameSite=Lax")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	fmt.Print(access_token)
-	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: access_token})
 
+	// Use Gin's SetCookie method
+	ctx.SetCookie(
+		"accessToken", // name
+		access_token,  // value
+		15*60,         // maxAge (seconds)
+		"/",           // path
+		"",            // domain (empty = current domain)
+		false,         // secure (set true in production)
+		true,          // httpOnly
+	)
+
+	ctx.SetCookie(
+		"refreshToken",
+		refresh_token,
+		7*24*60*60, // 7 days
+		"/",
+		"",
+		false, // secure (set true in production)
+		true,  // httpOnly
+	)
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Login successful"})
 }
 
 /*
@@ -121,14 +133,22 @@ func (ac *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 	newAccessToken, err := ac.service.RefreshTokens(ctx, refreshToken)
+	ctx.SetCookie(
+		"accessToken",  // name
+		newAccessToken, // value
+		15*60,          // maxAge (seconds)
+		"/",            // path
+		"",             // domain (empty = current domain)
+		false,          // secure (set true in production)
+		true,           // httpOnly
+	)
 	if err != nil {
 		ctx.JSON(401, utils.Response[string]{Success: false, Data: "Invalid refresh token"})
 		return
 	}
-	
-	ctx.JSON(200, utils.Response[string]{Success: true, Data: newAccessToken})
-}
 
+	ctx.JSON(200, utils.Response[string]{Success: true, Data: "Access token refreshed successfully"})
+}
 
 func (ac *AuthController) LoggedInUserController(ctx *gin.Context) {
 	email, exists := ctx.Get("email")
@@ -138,23 +158,120 @@ func (ac *AuthController) LoggedInUserController(ctx *gin.Context) {
 	}
 
 	user, err := ac.service.GetLoggedInUser(ctx, email.(string))
+	var userResponse models.UserResponse
+	userResponse.Id = user.Id
+	userResponse.Username = user.Username
+	userResponse.ProfilePic = user.ProfilePic
+	userResponse.Email = user.Email
+	userResponse.Name = user.Name
+	userResponse.Bio = user.Bio
+	userResponse.IsAdmin = user.IsAdmin
+	userResponse.Saved = user.Saved
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, utils.Response[models.User]{Success: true, Data: user})
+	ctx.JSON(http.StatusOK, utils.Response[models.UserResponse]{Success: true, Data: userResponse})
 }
 
 func (ac *AuthController) Logout(ctx *gin.Context) {
 	// Clear the refresh token cookie
 	ctx.SetCookie(
-        "refreshToken",
-        "",
-        -1, 
-        "/",
-        "",
-        false,                 
-        true,                 
-    )
+		"refreshToken",
+		"",
+		-1,
+		"/",
+		"",
+		false,
+		true,
+	)
+	ctx.SetCookie(
+		"accessToken",
+		"",
+		-1,
+		"/",
+		"",
+		false,
+		true,
+	)
+
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Logged out successfully"})
+}
+
+func (ac *AuthController) GetAllBlogsOfUser(ctx *gin.Context) {
+	userId, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, utils.Response[string]{Success: false, Data: "User not logged in"})
+		return
+	}
+	blogs, err := ac.service.GetAllBlogsByUserId(ctx, userId.(string))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}
+
+func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
+	type reqBody struct {
+		Email string `json:"email"`
+	}
+	var req reqBody
+
+	if err := ctx.ShouldBindJSON(&req); err != nil || req.Email == "" {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "Valid email required"})
+		return
+	}
+
+	err := ac.service.GenerateAndSendOTP(ctx.Request.Context(), req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "OTP sent successfully to your email"})
+}
+
+
+func (ac *AuthController) VerifyOTP(ctx *gin.Context) {
+	type reqBody struct {
+		Email string `json:"email"`
+		OTP   string `json:"otp"`
+	}
+
+	var req reqBody
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{
+			Success: false,
+			Data:    "Invalid request body",
+		})
+		return
+	}
+
+	err := ac.service.HandleVerifyOTP(ctx.Request.Context(),req.Email, req.OTP)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "Password reset successful"})
+}
+
+func (ac *AuthController) ResetPassword(ctx *gin.Context) {
+	type reqBody struct {
+		Email	   string `json:"email"`
+		NewPassword string `json:"new_password"`
+	}
+	var req reqBody
+	if err := ctx.ShouldBindJSON(&req); err != nil || req.NewPassword == "" {
+		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: "New password is required"})
+		return
+	}
+
+	res, err := ac.service.ResetPassword(ctx.Request.Context(), req.NewPassword, req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: res})
 }

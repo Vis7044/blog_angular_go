@@ -1,33 +1,105 @@
-'use client';
-import { blogService } from "@/services/blogService";
-import { useEffect, useState } from "react"
+"use client";
 
+import { useEffect, useState } from "react";
+import { blogService, Blog } from "@/services/blogService";
+import { BlogCard } from "@/components/BlogCard";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import OverlaySpinner from "@/components/OverlaySpinner";
 
+export default function MyBlogs() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
 
-function Blogs() {
-  const [blogs, setBlogs] = useState([])  
-  const getAllBlogs = async () => {
-    const blog = await blogService.getBlogs();
-    setBlogs(blog);
-  }
-  
-useEffect(() => {
-  getAllBlogs();
-},[])
-  return (
-    <div>
-      Blogs
-      <ul>
-        {blogs.map((blog) => (
-          <div key={blog._id}>
-            <h2>{blog.title}</h2>
-            <p dangerouslySetInnerHTML={{__html: blog.content}}></p>
-          </div>
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const userBlogs = await blogService.getBlogsByUser();
+        setBlogs(userBlogs);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load blogs");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-auto rounded-xl bg-gray-50 py-10 px-6">
+      <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">My Blogs</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Manage and view your blog posts here
+          </p>
+        </div>
+        <button
+          disabled
+          className="bg-gray-300 text-white px-4 py-2 rounded-lg cursor-not-allowed"
+        >
+          + New Blog
+        </button>
+      </div>
+
+      {/* Skeleton Loader Grid */}
+      <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <OverlaySpinner key={idx} />
         ))}
-      </ul>
+      </div>
     </div>
+    );
+  }
 
-  )
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-[70vh] text-red-500 text-lg">
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-auto rounded-xl bg-gray-50 py-10 px-6">
+      {/* Page Header */}
+      <div className="max-w-6xl mx-auto mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">My Blogs</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Manage and view your blog posts here
+          </p>
+        </div>
+        
+      </div>
+
+      {/* Blog List */}
+      <div className="max-w-6xl mx-auto">
+        {!blogs ? (
+          <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+            <p className="text-gray-500 text-lg">You haven’t written any blogs yet.</p>
+            <button
+              onClick={() => router.push("/write")}
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Write Your First Blog
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => (
+              <BlogCard
+                key={blog._id}
+                blog={{ ...blog, _id: blog._id || "", comments: blog.comments.map((comment) => comment.toString()) }}
+                onClick={(id) => router.push(`/blogs/${id}`)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
-
-export default Blogs

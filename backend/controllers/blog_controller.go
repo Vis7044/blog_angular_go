@@ -37,17 +37,18 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 	}
 
 	var blogInput struct {
-		Title   string `json:"title" binding:"required"`
-		Content string `json:"content" binding:"required"`
-		Status  models.Status `json:"status"`
-		Tags    []string `json:"tags"`
+		Title      string        `json:"title" binding:"required"`
+		Content    string        `json:"content" binding:"required"`
+		Status     models.Status `json:"status"`
+		CoverPhoto string        `json:"coverPhoto"`
+		Tags       []string      `json:"tags"`
 	}
 	if err := ctx.ShouldBindJSON(&blogInput); err != nil {
 		ctx.JSON(400, utils.Response[string]{Success: false, Data: "Invalid input: " + err.Error()})
 		return
 	}
 
-	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.Tags)
+	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.CoverPhoto, blogInput.Tags)
 	if err != nil {
 		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to create blog: " + err.Error()})
 		return
@@ -55,7 +56,6 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 
 	ctx.JSON(200, utils.Response[string]{Success: true, Data: message})
 }
-
 
 func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
 	var blogs []models.Blog
@@ -65,4 +65,48 @@ func (blogController *BlogController) GetAllBlogsController(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}
+
+func (bc *BlogController) SearchBlogsController(ctx *gin.Context) {
+	query := ctx.Query("q")
+	if query == "" {
+		ctx.JSON(400, utils.Response[string]{Success: false, Data: "Search query required"})
+		return
+	}
+
+	blogs, err := bc.blogService.SearchBlogs(ctx.Request.Context(), query)
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to search blogs: " + err.Error()})
+		return
+	}
+
+	ctx.JSON(200, utils.Response[[]models.Blog]{Success: true, Data: blogs})
+}
+
+func (blogController *BlogController) GetBlogsByDetailsController(ctx *gin.Context) {
+	blogId := ctx.Param("id")
+	blog, err := blogController.blogService.GetBlogsByDetails(ctx.Request.Context(), blogId)
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to fetch blog details: " + err.Error()})
+		return
+	}
+	ctx.JSON(200, utils.Response[models.Blog]{Success: true, Data: blog})
+}
+
+func (blogController *BlogController) LikeBlogController(ctx *gin.Context) {
+	blogId := ctx.Param("id")
+
+	userIDStr, exists := ctx.Get("userId")
+
+	if !exists {
+		ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Unauthorized"})
+		return
+	}
+
+	blog, err := blogController.blogService.UpdateLike(ctx, blogId, userIDStr.(string))
+	if err != nil {
+		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to update like: " + err.Error()})
+		return
+	}
+	ctx.JSON(200, utils.Response[models.Blog]{Success: true, Data: blog})
 }
