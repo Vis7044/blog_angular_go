@@ -26,8 +26,9 @@ func LoadConfig() {
 	}
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+    log.Println(".env file not found — using environment variables from Docker or system")
+}
+
 	Cfg = &AppConfig{
 		MongoURI: os.Getenv("MONGO_URI"),
 		Jwt_secret: os.Getenv("JWT_SECRET"),
