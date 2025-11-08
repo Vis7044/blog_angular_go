@@ -44,10 +44,16 @@ func main() {
 	blogService := services.NewBlogService(blogRepo)
 	blogController := controllers.NewBlogController(blogService)
 
+	//Initialize comment controller
+	commentRepo := repositories.NewCommentRepository(config.DB)
+	commentService := services.NewCommentService(commentRepo)
+	commentController := controllers.NewCommentController(commentService)
+
 	// Register routes
 	routes.AuthRoute(r, authController)
 	routes.ImageRoute(r, imageController)
 	routes.BlogRoute(r, blogController)
+	routes.CommentRoute(r, commentController)
 
 	// Run server
 	r.Run(":8080")
