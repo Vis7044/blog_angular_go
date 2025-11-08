@@ -7,7 +7,7 @@ import "@/styles/editor.css";
 import { PreviewBlog } from "./PreviewBlog";
 import { Edit3, Play, Upload } from "lucide-react";
 import SaveBlogModal from "./SaveBlogModal";
-
+import Quill from "react-quill-new";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export default function BlogEditor() {
@@ -139,7 +139,7 @@ export default function BlogEditor() {
               onChange={(e) => setTitle(e.target.value)}
               className="w-full p-3 max-h-20 border border-gray-300 font-semibold text-gray-700 rounded-md mb-4 text-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             />
-            <ReactQuill
+            <Quill
               ref={quillRef}
               theme="snow"
               value={content}
