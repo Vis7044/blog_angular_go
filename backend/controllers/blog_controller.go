@@ -20,6 +20,7 @@ func NewBlogController(blogService *services.BlogService) *BlogController {
 
 func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 	userId, exists := ctx.Get("userId")
+	id := ctx.Query("id")
 	if !exists {
 		ctx.AbortWithStatusJSON(401, utils.Response[string]{Success: false, Data: "Unauthorized"})
 		return
@@ -48,7 +49,7 @@ func (blogController *BlogController) CreateBlogController(ctx *gin.Context) {
 		return
 	}
 
-	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.CoverPhoto, blogInput.Tags)
+	message, err := blogController.blogService.CreateBlog(ctx.Request.Context(), userObjectID, blogInput.Title, blogInput.Content, blogInput.Status, blogInput.CoverPhoto, blogInput.Tags, id)
 	if err != nil {
 		ctx.JSON(500, utils.Response[string]{Success: false, Data: "Failed to create blog: " + err.Error()})
 		return

@@ -21,7 +21,7 @@ func NewBlogService(r *repositories.BlogRepository) *BlogService {
 	}
 }
 
-func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, coverPhoto string, tags []string) (string, error) {
+func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive.ObjectID, title, content string, status models.Status, coverPhoto string, tags []string, id string) (string, error) {
 	if title == "" {
 		return "", errors.New("title is required")
 	}
@@ -37,20 +37,27 @@ func (blogservice *BlogService) CreateBlog(ctx context.Context, userId primitive
 			tempTags = append(tempTags, strings.ToLower(strings.TrimSpace(tag)))
 		}
 	}
-	var blog = &models.Blog{
-		Id:         primitive.NewObjectID(),
-		UserId:     userId,
-		Title:      title,
-		Content:    content,
-		Status:     status,
-		Likes:      []primitive.ObjectID{},
-		Comments:   []primitive.ObjectID{},
-		CoverPhoto: coverPhoto,
-		Tags:     tempTags,
-		CreatedAt: primitive.DateTime(time.Now().Unix()),
-		UpdatedAt: primitive.DateTime(time.Now().Unix()),
+	if id == "" {
+			var blog = &models.Blog{
+			Id:         primitive.NewObjectID(),
+			UserId:     userId,
+			Title:      title,
+			Content:    content,
+			Status:     status,
+			Likes:      []primitive.ObjectID{},
+			Comments:   []primitive.ObjectID{},
+			CoverPhoto: coverPhoto,
+			Tags:     tempTags,
+			CreatedAt: primitive.DateTime(time.Now().Unix()),
+			UpdatedAt: primitive.DateTime(time.Now().Unix()),
+		}
+		return blogservice.blog_repository.CreateBlog(ctx, blog)
 	}
-	return blogservice.blog_repository.CreateBlog(ctx, blog)
+	blogId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return "", errors.New("invalid blog id")
+	}
+	return blogservice.blog_repository.UpdateExistingBlog(ctx, blogId, title, content, status, coverPhoto, tempTags)
 }
 
 func (blogservice *BlogService) GetAllBlogs(ctx context.Context) ([]models.Blog, error) {

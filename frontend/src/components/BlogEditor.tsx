@@ -7,18 +7,62 @@ import { Edit3, Play, Upload } from "lucide-react";
 import Quill from "react-quill-new";
 import SaveBlogModal from "@/components/SaveBlogModal";
 import { PreviewBlog } from "@/components/PreviewBlog";
+import { useUnsavedChanges } from "@/context/UnsavedChangesContext";
 
-export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, IntitialContent}: {Intialtags: string[], InitialcoverPhoto: string, IntialTitle: string, IntitialContent: string }) {
+export default function BlogEditor({
+  id,
+  Intialtags,
+  InitialcoverPhoto,
+  IntialTitle,
+  IntitialContent,
+}: { 
+  id: string;
+  Intialtags: string[];
+  InitialcoverPhoto: string;
+  IntialTitle: string;
+  IntitialContent: string;
+}) {
   const quillRef = useRef<any>(null);
-  const previousImagesRef = useRef<Set<string>>(new Set());
+  const uploadedImagesRef = useRef<Set<string>>(new Set()); 
+  const initialImagesRef = useRef<Set<string>>(new Set()); 
   const [title, setTitle] = useState(IntialTitle);
   const [content, setContent] = useState(IntitialContent);
   const [previewMode, setPreviewMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [tags] = useState<string[]>(Intialtags)
-  const [coverPhoto] = useState<string>(InitialcoverPhoto)
+  const [tags] = useState<string[]>(Intialtags);
+  const [coverPhoto] = useState<string>(InitialcoverPhoto);
+  const [hasChanges, setHasChanges] = useState(false);
+  const { setHasUnsavedChanges } = useUnsavedChanges();
 
-  // Image handler
+  // Extract initial images on mount
+  useEffect(() => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(IntitialContent, "text/html");
+    const imgs = doc.querySelectorAll("img");
+    
+    imgs.forEach((img) => {
+      const publicId = img.getAttribute("data-public-id");
+      if (publicId) {
+        initialImagesRef.current.add(publicId);
+        uploadedImagesRef.current.add(publicId);
+      }
+    });
+  }, [IntitialContent]);
+
+  useEffect(() => {
+    setHasUnsavedChanges(hasChanges);
+  }, [hasChanges, setHasUnsavedChanges]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTitle(e.target.value);
+    setHasChanges(true);
+  };
+
+  const handleContentChange = (val: string) => {
+    setContent(val);
+    setHasChanges(true);
+  };
+
   const imageHandler = async () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -39,7 +83,7 @@ export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, 
 
         quill.insertEmbed(range.index, "image", secureUrl);
         quill.setSelection(range.index + 1);
-        previousImagesRef.current.add(publicId);
+        uploadedImagesRef.current.add(publicId);
 
         setTimeout(() => {
           const img = quill.root.querySelector(`img[src="${secureUrl}"]`);
@@ -51,7 +95,69 @@ export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, 
     };
   };
 
-  // Handle preview
+  // Get currently used images from content
+  const getCurrentImages = (): Set<string> => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return new Set();
+
+    const usedPublicIds = new Set<string>();
+    const imgs = quill.root.querySelectorAll("img");
+    
+    imgs.forEach((img: any) => {
+      const pid = img.getAttribute("data-public-id");
+      if (pid) usedPublicIds.add(pid);
+    });
+
+    return usedPublicIds;
+  };
+
+  // Delete unused images
+  const cleanupUnusedImages = async () => {
+    const currentImages = getCurrentImages();
+    const toDelete: string[] = [];
+
+    // Find images that were uploaded but removed from content
+    uploadedImagesRef.current.forEach((publicId) => {
+      if (!currentImages.has(publicId)) {
+        toDelete.push(publicId);
+      }
+    });
+
+    // Delete each unused image
+    for (const publicId of toDelete) {
+      try {
+        await blogService.deleteImage(publicId);
+        uploadedImagesRef.current.delete(publicId);
+        console.log(`Deleted unused image: ${publicId}`);
+      } catch (err) {
+        console.error(`Failed to delete image ${publicId}:`, err);
+      }
+    }
+
+    return toDelete.length;
+  };
+
+  // Cleanup on unmount (when leaving page without saving)
+  useEffect(() => {
+    return () => {
+      if (hasChanges) {
+        // User left without saving - delete all newly uploaded images
+        const newImages = Array.from(uploadedImagesRef.current).filter(
+          (id) => !initialImagesRef.current.has(id)
+        );
+
+        newImages.forEach(async (publicId) => {
+          try {
+            await blogService.deleteImage(publicId);
+            console.log(`Cleanup on unmount: ${publicId}`);
+          } catch (err) {
+            console.error(`Cleanup failed for ${publicId}:`, err);
+          }
+        });
+      }
+    };
+  }, [hasChanges]);
+
   const handlePreview = async () => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -59,25 +165,8 @@ export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, 
     const html = quill.root.innerHTML;
     setContent(html);
 
-    const usedPublicIds = new Set<string>();
-    const imgs = quill.root.querySelectorAll("img");
-    imgs.forEach((img: any) => {
-      const pid = img.getAttribute("data-public-id");
-      if (pid) usedPublicIds.add(pid);
-    });
-
-    const unused = Array.from(previousImagesRef.current).filter(
-      (pid) => !usedPublicIds.has(pid)
-    );
-
-    for (const pid of unused) {
-      try {
-        await blogService.deleteImage(pid);
-        previousImagesRef.current.delete(pid);
-      } catch (err) {
-        console.error("Failed to delete image:", pid, err);
-      }
-    }
+    // Cleanup unused images before preview
+    await cleanupUnusedImages();
 
     setPreviewMode(true);
   };
@@ -90,9 +179,26 @@ export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, 
     tags: string[]
   ) => {
     try {
-      await blogService.saveBlog({ title, content, status, coverPhoto, tags });
+      // Cleanup unused images before saving
+      const deletedCount = await cleanupUnusedImages();
+      console.log(`Deleted ${deletedCount} unused images before save`);
+
+      // Save the blog
+      await blogService.saveBlog({id, title, content, status, coverPhoto, tags });
+      
+      // Update refs - current images are now the "initial" images
+      const currentImages = getCurrentImages();
+      initialImagesRef.current = new Set(currentImages);
+      uploadedImagesRef.current = new Set(currentImages);
+      
+      // Clear unsaved changes
+      setHasUnsavedChanges(false);
+      setHasChanges(false);
+      
+      console.log("Blog saved successfully");
     } catch (err) {
       console.error("Blog save failed:", err);
+      throw err; 
     }
   };
 
@@ -136,14 +242,14 @@ export default function BlogEditor({Intialtags, InitialcoverPhoto, IntialTitle, 
             <textarea
               placeholder="Enter title..."
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => handleTitleChange(e)}
               className="w-full p-3 max-h-20 border border-gray-300 font-semibold text-gray-700 rounded-md mb-4 text-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             />
             <Quill
               ref={quillRef}
               theme="snow"
               value={content}
-              onChange={setContent}
+              onChange={handleContentChange}
               modules={modules}
               placeholder="Write something awesome..."
             />

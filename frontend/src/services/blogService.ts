@@ -46,8 +46,8 @@ class BlogService {
     });
   }
 
-  saveBlog = async (blogData: {title: string; content: string, status:Status, coverPhoto: string, tags: string[]}): Promise<void> => {
-    await apiClient.post(`${this.baseUrl}`, blogData);
+  saveBlog = async (blogData: {id: string; title: string; content: string, status:Status, coverPhoto: string, tags: string[]}): Promise<void> => {
+    await apiClient.post(`${this.baseUrl}?id=${blogData.id}`, blogData);
   }
 
   getBlogs = async (): Promise<Blog[]> => {

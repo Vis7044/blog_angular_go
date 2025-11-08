@@ -1,17 +1,18 @@
 'use client'
 
 import BlogEditor from '@/components/BlogEditor'
+import { UnsavedChangesProvider } from '@/context/UnsavedChangesContext'
 import { useState } from 'react'
 
 export default function Write() {
 
 
   return (
-    <div className="">
-      
-      <BlogEditor />
-
-      
-    </div>
+    
+    <UnsavedChangesProvider>
+      <div className="">
+        <BlogEditor id="" InitialcoverPhoto='' IntialTitle='' IntitialContent='' Intialtags={[]}  />
+      </div>
+    </UnsavedChangesProvider>
   )
 }
