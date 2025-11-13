@@ -55,6 +55,12 @@ func main() {
 	routes.BlogRoute(r, blogController)
 	routes.CommentRoute(r, commentController)
 
+	// Register tags route
+	tagsRepo := repositories.NewTagsRepository(config.DB)
+	tagsService := services.NewTagService(tagsRepo)
+	tagsController := controllers.NewTagsController(tagsService)
+	routes.TagsRoute(r, tagsController)
+
 	// Run server
 	r.Run(":8080")
 }

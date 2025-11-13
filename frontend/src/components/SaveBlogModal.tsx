@@ -23,14 +23,6 @@ interface SaveBlogModalProps {
   ) => Promise<void>;
 }
 
-const TAG_OPTIONS = [
-  { label: "Technology", value: "technology" },
-  { label: "Design", value: "design" },
-  { label: "Programming", value: "programming" },
-  { label: "Business", value: "business" },
-  { label: "Lifestyle", value: "lifestyle" },
-];
-
 const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
   open,
   onOk,
@@ -46,8 +38,25 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
   const [photoId, setPhotoId] = useState("");
   const [tags, setTags] = useState<string[]>(Edittags || []);
   const [loading, setLoading] = useState(false);
+  const [tagOptions, setTagOptions] = useState<{ label: string; value: string }[]>(
+  []
+);
 
-  console.log(tags,coverPhoto)
+const handleSearchTags = async (searchText: string) => {
+  if (!searchText) return;
+
+  try {
+    const data = await blogService.searchTags(searchText);  
+
+    const formatted = data.map((tag) => ({
+      label: tag.label,
+      value: tag.value,
+    }));
+    setTagOptions(formatted);
+  } catch (err) {
+    console.error(err);
+  }
+};
   useEffect(() => {
     if (open) {
       setTags(Edittags || []);
@@ -178,13 +187,17 @@ const SaveBlogModal: React.FC<SaveBlogModalProps> = ({
 
         <Form.Item label="Tags" required>
           <Select
-            mode="multiple"
+            mode="tags"
             allowClear
-            placeholder="Select tags"
+            showSearch
+            placeholder="Search tags"
             value={tags}
+            onSearch={handleSearchTags}
+            options={tagOptions}
             onChange={(value) => setTags(value)}
-            options={TAG_OPTIONS}
+            filterOption={false} 
           />
+
         </Form.Item>
       </Form>
     </Modal>
