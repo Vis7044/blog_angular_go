@@ -51,7 +51,7 @@ class BlogService {
   }
 
   getBlogs = async (): Promise<Blog[]> => {
-    const response = await apiClient.get(`${this.baseUrl}`);
+    const response = await apiClient.get<ApiResponse<Blog[]>>(`${this.baseUrl}`);
     return response.data.data;
   }
 
