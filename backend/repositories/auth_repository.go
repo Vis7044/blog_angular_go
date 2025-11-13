@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	// "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -174,4 +175,49 @@ func (r *AuthRepository) ResetPasswordByEmail(ctx context.Context, email, hashed
 	}
 
 	return email, nil
+}
+
+/*Temp:
+
+opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+Here’s what’s happening:
+
+options.FindOneAndUpdate()
+creates a new options struct for the FindOneAndUpdate operation.
+
+.SetReturnDocument(options.After)
+tells MongoDB:
+
+“After updating, return the document after the update is applied, not before.”
+
+If you don’t set this, the result would be the document before it was updated.
+
+So this ensures you get the latest updated data right away*/
+
+func (ar *AuthRepository) SavedBlogs(ctx context.Context, blogId primitive.ObjectID, userId primitive.ObjectID) (models.User, error) {
+	filter := bson.M{"_id": userId}
+
+	checkFilter := bson.M{"_id": userId, "saved": blogId}
+
+	err := ar.user_collection.FindOne(ctx, checkFilter).Err()
+
+	var update bson.M
+
+	if err == mongo.ErrNoDocuments {
+		update = bson.M{"$addToSet": bson.M{"saved": blogId}}
+	} else if err == nil {
+		update = bson.M{"$pull": bson.M{"saved": blogId}}
+	} else {
+		return models.User{}, err
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updatedUser models.User
+
+	if err := ar.user_collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedUser); err != nil {
+		return models.User{}, err
+	}
+
+	return updatedUser, nil
+
 }

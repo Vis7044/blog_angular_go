@@ -20,5 +20,6 @@ func AuthRoute(r *gin.Engine, authController *controllers.AuthController) {
 		user.POST("/forgot-password", authController.ForgotPassword)
 		user.POST("/verify-otp", authController.VerifyOTP)
 		user.POST("/reset-password", authController.ResetPassword)
+		user.POST("/saved/:id", middleware.AuthMiddleware(), authController.SavedBlogs)
 	}
 }

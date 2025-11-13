@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"strconv"
 	"time"
+
 	"github.com/blog_go/config"
 	"github.com/blog_go/models"
 	"github.com/blog_go/repositories"
@@ -185,7 +186,7 @@ func (as *AuthService) GetAllBlogsByUserId(ctx context.Context, id string) ([]mo
 }
 
 func generateOTP() string {
-	max := big.NewInt(1000000) 
+	max := big.NewInt(1000000)
 	n, err := rand.Int(rand.Reader, max)
 	if err != nil {
 		return "000000"
@@ -213,7 +214,7 @@ func (as *AuthService) GenerateAndSendOTP(ctx context.Context, email string) err
 	err = brevoService.SendTemplateEmail(
 		user.Email,
 		user.Name,
-		6, 
+		6,
 		map[string]interface{}{
 			"name": user.Name,
 			"otp":  otp,
@@ -226,9 +227,9 @@ func (as *AuthService) GenerateAndSendOTP(ctx context.Context, email string) err
 	return nil
 }
 
-func (as *AuthService) HandleVerifyOTP(ctx context.Context,email, otp string) error {
+func (as *AuthService) HandleVerifyOTP(ctx context.Context, email, otp string) error {
 	// Validate inputs
-	if email == "" || otp == ""  {
+	if email == "" || otp == "" {
 		return errors.New("email, otp are required")
 	}
 
@@ -261,3 +262,16 @@ func (as *AuthService) ResetPassword(ctx context.Context, newPassword string, em
 	return userEmail, nil
 }
 
+func (as *AuthService) SavedBlogs(ctx context.Context, blogIdStr string, userIdStr string) (models.User, error) {
+	blogId, err := primitive.ObjectIDFromHex(blogIdStr)
+	if err != nil {
+		return models.User{}, errors.New("invalid blog id")
+	}
+
+	userId, err := primitive.ObjectIDFromHex(userIdStr)
+	if err != nil {
+		return models.User{}, errors.New("invalid user id")
+	}
+
+	return as.repo.SavedBlogs(ctx, blogId, userId)
+}
