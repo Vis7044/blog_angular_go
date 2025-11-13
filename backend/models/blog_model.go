@@ -12,8 +12,7 @@ const (
 
 type Blog struct {
 	Id primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	//Vishal sala yha json me userID me D capital q diya h ??
-	UserId     primitive.ObjectID   `bson:"userId" json:"userID"`
+	UserId     primitive.ObjectID   `bson:"userId" json:"userId"`
 	Title      string               `bson:"title" json:"title"`
 	Content    string               `bson:"content" json:"content"`
 	CoverPhoto string               `bson:"coverPhoto" json:"coverPhoto"`

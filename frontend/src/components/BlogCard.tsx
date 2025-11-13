@@ -1,9 +1,9 @@
-"use client";
 
 import React from "react";
 import DOMPurify from "dompurify";
 import { MessageSquare, Heart, Tag, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export interface Blog {
   _id: string;
@@ -43,15 +43,17 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
   <div className="sm:w-2/6 h-48 sm:h-auto overflow-hidden relative">
     {blog.coverPhoto ? (
       <div className="w-full bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
-        <img
+        <Image
           src={blog.coverPhoto}
           alt={blog.title}
-          className="w-full h-56 object-contain transition-transform duration-500 ease-in-out group-hover:scale-105"
+          layout="fill"
+          objectFit="fill"
+          className="transition-transform duration-500 ease-in-out group-hover:scale-105"
         />
       </div>
     ) : (
       <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-        <img src="/loginArt.jpg" alt="default" className="w-32 opacity-70" />
+        <Image src="/loginArt.jpg" objectFit="fill" height={200} width={200} alt="default" className="w-32 opacity-70" />
       </div>
     )}
   </div>
