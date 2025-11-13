@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/blog_go/models"
 	"github.com/blog_go/services"
 	"github.com/blog_go/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type AuthController struct {
@@ -232,7 +233,6 @@ func (ac *AuthController) ForgotPassword(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: "OTP sent successfully to your email"})
 }
 
-
 func (ac *AuthController) VerifyOTP(ctx *gin.Context) {
 	type reqBody struct {
 		Email string `json:"email"`
@@ -248,7 +248,7 @@ func (ac *AuthController) VerifyOTP(ctx *gin.Context) {
 		return
 	}
 
-	err := ac.service.HandleVerifyOTP(ctx.Request.Context(),req.Email, req.OTP)
+	err := ac.service.HandleVerifyOTP(ctx.Request.Context(), req.Email, req.OTP)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, utils.Response[string]{Success: false, Data: err.Error()})
 		return
@@ -259,7 +259,7 @@ func (ac *AuthController) VerifyOTP(ctx *gin.Context) {
 
 func (ac *AuthController) ResetPassword(ctx *gin.Context) {
 	type reqBody struct {
-		Email	   string `json:"email"`
+		Email       string `json:"email"`
 		NewPassword string `json:"new_password"`
 	}
 	var req reqBody
@@ -274,4 +274,22 @@ func (ac *AuthController) ResetPassword(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, utils.Response[string]{Success: true, Data: res})
+}
+
+func (ac *AuthController) SavedBlogs(ctx *gin.Context) {
+	blogId := ctx.Param("id")
+
+	userID, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	res, err := ac.service.SavedBlogs(ctx, blogId, userID.(string))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, utils.Response[string]{Success: false, Data: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, utils.Response[models.User]{Success: true, Data: res})
 }
