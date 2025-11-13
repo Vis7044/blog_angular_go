@@ -90,9 +90,13 @@ export const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
           ) : (
             <Link
               href="/profile"
-              className="flex items-center gap-2 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-all"
+              className="flex items-center gap-1 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-all"
             >
+              {!user.profilePic ?(
               <CircleUserRound className="w-5 h-5" />
+              ) : (
+              <img src={user.profilePic} className='w-6 rounded-full'/>
+              )}
               <span className="hidden sm:inline font-medium">{user.name}</span>
             </Link>
           )}
