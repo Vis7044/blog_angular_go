@@ -1,32 +1,39 @@
-import React from "react";
+'use client'
 
 export const BlogSkeleton = () => {
+  // Create placeholders (e.g., 6 skeleton cards)
+  const skeletons = Array.from({ length: 6 });
+
   return (
-    <div className="animate-pulse w-full max-w-4xl mx-auto px-4 py-6">
-      {/* Title */}
-      <div className="h-8 bg-gray-300 rounded-md w-3/4 mb-6"></div>
+    <div className="grid sm:grid-rows-2 lg:grid-rows-3 gap-8 animate-pulse">
+      {skeletons.map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col border border-gray-200 bg-white rounded-2xl shadow-sm"
+        >
+          {/* Image Skeleton */}
+          <div className="h-56 md:h-60 rounded-t-2xl bg-gray-200" />
 
-      {/* Date */}
-      <div className="h-4 bg-gray-200 rounded-md w-1/4 mb-8"></div>
+          {/* Content Skeleton */}
+          <div className="flex flex-col justify-between p-5 flex-grow">
+            <div>
+              <div className="h-5 bg-gray-200 rounded w-3/4 mb-3" />
+              <div className="h-4 bg-gray-200 rounded w-full mb-2" />
+              <div className="h-4 bg-gray-200 rounded w-5/6 mb-2" />
+              <div className="h-4 bg-gray-200 rounded w-4/6" />
+            </div>
 
-      {/* Content paragraphs */}
-      <div className="space-y-4">
-        <div className="h-4 bg-gray-200 rounded-md w-full"></div>
-        <div className="h-4 bg-gray-200 rounded-md w-5/6"></div>
-        <div className="h-4 bg-gray-200 rounded-md w-3/4"></div>
-      </div>
-
-      {/* Code block */}
-      <div className="bg-gray-200 rounded-md h-40 mt-8"></div>
-
-      {/* More content */}
-      <div className="space-y-4 mt-8">
-        <div className="h-4 bg-gray-200 rounded-md w-full"></div>
-        <div className="h-4 bg-gray-200 rounded-md w-5/6"></div>
-        <div className="h-4 bg-gray-200 rounded-md w-3/4"></div>
-      </div>
+            {/* Footer Skeleton */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-5">
+              <div className="flex items-center gap-4">
+                <div className="h-4 w-10 bg-gray-200 rounded" />
+                <div className="h-4 w-10 bg-gray-200 rounded" />
+              </div>
+              <div className="h-4 w-16 bg-gray-200 rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
-
-export default BlogSkeleton;
